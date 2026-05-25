@@ -1,0 +1,299 @@
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { EncryptionService } from '../../core/utils/encryption.service';
+import { RefreshToken } from '../../core/utils/refresh.token.service';
+import { CreateAccountDto } from './dto/create-account.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
+import { Account, AccountDocument } from './account.entity';
+import { User, UserDocument } from '../users/user.entity';
+import { Model, Error as MongooseError } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { HttpService } from '@nestjs/axios';
+import { catchError, firstValueFrom, map } from 'rxjs';
+import { stringify } from 'querystring';
+import { AxiosError } from 'axios';
+
+@Injectable()
+export class AccountsService {
+  constructor(
+    @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly encryptionService: EncryptionService,
+    private readonly http: HttpService,
+    private readonly refreshToken: RefreshToken
+  ) { }
+
+  async create(createAccountDto: CreateAccountDto): Promise<any> {
+    try {
+      const results = []
+      const body = {
+        grant_type: process.env.AZURE_GRANT_TYPE,
+        scope: process.env.AZURE_SCOPE,
+        resource: process.env.AZURE_RESOURCE,
+        client_id: createAccountDto.clientId,
+        client_secret: createAccountDto.clientSecret,
+        username: createAccountDto.email,
+        password: createAccountDto.pass,
+
+      };
+      const key = process.env.ENCRYPTION_KEY
+      const password = this.encryptionService.encryptData(createAccountDto.pass, key);
+      const config = {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      };
+      const response = await firstValueFrom(this.http.post(process.env.AZURE_URL, stringify(body), config)
+        .pipe(map(res => res.data)));
+      results.push(response)
+      const newAccount: CreateAccountDto[] = results.map((item: any) => {
+
+        return {
+          nameAccount: createAccountDto.nameAccount,
+          email: createAccountDto.email,
+          pass: password,
+          clientId: createAccountDto.clientId,
+          clientSecret: createAccountDto.clientSecret,
+          tenantId: createAccountDto.tenantId,
+          token: item.access_token,
+          refreshToken: item.refresh_token,
+          expiresIn: item.expires_in,
+          expiresOn: item.expires_on
+        } as CreateAccountDto
+
+      })
+      const account = new this.accountModel(newAccount[0]);
+      await account.save();
+
+      await this.registerUserAtAccount(account._id);
+      return account;
+    } catch (error) {
+      throw new InternalServerErrorException(error.response?.data ?? error.message);
+    }
+  };
+
+  async findAllAccounts(): Promise<any> {
+    try {
+      const accounts = await this.accountModel.find();
+      await Promise.all(
+        accounts.map(async (account) => {
+          account.userCount = await this.getUserCount(account._id);
+        }),
+      );
+      return accounts;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  };
+
+  async findByExpiresOn(email: string) {
+    try {
+      const result = await this.accountModel.findOne({ email });
+      return result.expiresOn;
+
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+
+    }
+  };
+  async getBiAccount(email: string): Promise<any> {
+    try {
+      const result = await this.accountModel.findOne({ email });
+      if (!result) {
+        throw new NotFoundException(`Account with email: ${email} not found`);
+      }
+      await this.refreshToken.refresh(email);
+      return result;
+    } catch (error) {
+      if (error instanceof MongooseError.CastError) {
+        throw new BadRequestException(`${error.message}`);
+      }
+      if (error instanceof MongooseError.DocumentNotFoundError) {
+        throw new NotFoundException(`Account with email: ${email} not found: ${error.message}`);
+      }
+      throw new InternalServerErrorException(error.message);
+
+    }
+  };
+  async getIdAccount(id: string): Promise<any> {
+    try {
+      const account = await this.accountModel.findOne({ _id: id });
+      if (!account) {
+        throw new NotFoundException(`Account with ID ${id} not found`);
+      }
+      await this.refreshToken.refresh(account.email);
+      return account;
+
+    } catch (error) {
+      if (error instanceof MongooseError.CastError) {
+        throw new BadRequestException(`Invalid ID format: ${error.message}`);
+      }
+      if (error instanceof MongooseError.DocumentNotFoundError) {
+        throw new NotFoundException(`Report with ID ${id} not found: ${error.message}`);
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  };
+  async getRefreshToken(email: string): Promise<any> {
+    return await this.accountModel.findOne({ email });
+  };
+
+  async getNewAccessToken(email: string) {
+    const tokenEndpoint = 'https://login.microsoftonline.com/27cc7714-ecb3-407d-8115-da53f624c6da/oauth2/token';
+    const account = await this.getRefreshToken(email);
+    const results = []
+    const body = {
+      grant_type: process.env.AZURE_GRANT_TYPE2,
+      scope: process.env.AZURE_SCOPE,
+      refresh_token: account.refreshToken,
+      client_id: account.clientId,
+      client_secret: process.env.AZURE_CLIENT_SECRET,
+    };
+    const config = {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    };
+    try {
+      const response = await firstValueFrom(this.http.post(tokenEndpoint, stringify(body), config)
+        .pipe(
+          map(res => res.data),
+          catchError((error: AxiosError) => {
+            throw 'An error happened!';
+          })
+        )
+      );
+      results.push(response)
+      const newToken: UpdateAccountDto[] = results.map((item: any) => {
+
+        return {
+          email: email,
+          token: item.access_token,
+          refreshToken: item.refresh_token,
+          expiresIn: item.expires_in,
+          expiresOn: item.expires_on
+        } as UpdateAccountDto
+
+      })
+      await this.update(newToken);
+
+      return newToken;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  };
+
+  async addUserId(userId: string, accountId: string) {
+    try {
+      await this.accountModel.findByIdAndUpdate(
+        accountId,
+        { $addToSet: { users: userId } }
+      );
+
+    } catch (error) {
+      if (error instanceof MongooseError.CastError) {
+        throw new BadRequestException(`Invalid ID format: ${error.message}`);
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  };
+  async removeUserFromAccount(accountId: string, userId: string) {
+    try {
+      // Remover o ID do usuário da entidade account
+      await this.accountModel.findByIdAndUpdate(
+        accountId,
+        { $pull: { users: userId } }
+      );
+
+      // Retirar o ID da account na entidade users
+      await this.userModel.findByIdAndUpdate(
+        userId,
+        { $pull: { accountID: accountId } }
+      );
+      return { message: 'Usuário removido com sucesso' }
+
+    } catch (error) {
+      if (error instanceof MongooseError.CastError) {
+        throw new BadRequestException(`Invalid ID format: ${error.message}`);
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+  async updateAccount(id: string, updateDto: UpdateAccountDto) {
+    try {
+      return await this.accountModel.findOneAndUpdate({
+        _id: id,
+      }, {
+        $set: updateDto,
+      }, {
+        $new: true
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
+
+  };  
+  async update(updateApiDto: UpdateAccountDto[]) {
+    try {
+      return await this.accountModel.findOneAndUpdate({
+        email: updateApiDto[0].email,
+      }, {
+        $set: updateApiDto[0],
+      }, {
+        $new: true
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
+
+  };
+  async registerUserAtAccount(accountID: string) {
+    try {
+      await this.accountModel.findByIdAndUpdate({
+        _id: accountID
+      }, {
+        $inc: { userCount: 1 }
+      }, {
+        $currentDate: { lastModified: true }
+      })
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+  async addUserToAccount(accountId: string, userId: string) {
+    try {
+      await this.accountModel.findOneAndUpdate({ _id: accountId }, { $addToSet: { users: userId } }, { new: true });
+      return await this.userModel.findByIdAndUpdate(
+        { _id: userId },
+        { $addToSet: { accountID: accountId }, },
+        { new: true })
+
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async removeAccount(id: string): Promise<any> {
+    try {
+      const existUsers = await this.userModel.find({ accountID: id });
+      if (existUsers.length > 0) {
+        throw new ConflictException(`Conta possui usuários ${existUsers.length} cadastrados`);
+      }
+      await this.accountModel.deleteOne({
+        _id: id,
+      }).exec();
+
+      return { message: 'Conta excluída com sucesso' }
+
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  /**
+   * Conteo real de usuarios de una cuenta: única fuente de verdad.
+   * Se deriva de los documentos User que referencian la cuenta — no del
+   * contador denormalizado `userCount` ni del array `account.users`.
+   */
+  async getUserCount(accountId: string): Promise<number> {
+    return this.userModel.countDocuments({ accountID: accountId });
+  }
+}

@@ -1,0 +1,281 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, forwardRef, Req, UseInterceptors, UseGuards, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { CreateUserDto, ROLE_TYPES, UserResponseDto, UserResponseWithPopulateDto } from './dto/create-user.dto';
+import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
+import { SentryInterceptor } from '../../core/sentry/sentry.interceptor';
+import { SkipAuth } from 'src/app/core/auth/skip-auth.decorator';
+import { Roles } from 'src/app/core/auth/roles-auth.decorator';
+import { ReportsService } from '../reports/reports.service';
+import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
+import { RolesGuard } from 'src/app/core/auth/roles.guard';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { UsersService } from './users.service';
+import { Request } from "express";
+
+
+@ApiTags('Users')
+@UseInterceptors(SentryInterceptor)
+@Controller('users')
+export class UsersController {
+  constructor(
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService,
+    private readonly report: ReportsService,
+
+  ) { }
+  @Post('create')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER, ROLE_TYPES.ADMIN)
+  @ApiOperation({
+    summary: 'Criação de novo usuário',
+    description: 'Registra um novo usuário. Requer token de um ADMIN ou MANAGER. Apenas um MANAGER pode criar usuários com role manager ou admin.',
+  })
+  @ApiCreatedResponse({ description: 'Usuário criado com sucesso.', type: UserResponseDto })
+  @ApiCommonResponses()
+  async create(@Req() req: Request, @Body() createUserDto: CreateUserDto): Promise<any> {
+    const caller = req.user;
+    const elevated = createUserDto.role === ROLE_TYPES.MANAGER || createUserDto.role === ROLE_TYPES.ADMIN;
+    if (elevated && caller.role !== ROLE_TYPES.MANAGER) {
+      throw new ForbiddenException('Apenas um MANAGER pode criar usuários manager/admin');
+    }
+
+    const userFromDB = await this.usersService.findUserByEmail(createUserDto.email);
+    if (userFromDB) {
+      throw new UnauthorizedException(`O email: ${createUserDto.email} está em uso`);
+    }
+
+    let accountId: string;
+    if (createUserDto.role === ROLE_TYPES.USER) {
+      if (!createUserDto.accountUser) {
+        throw new BadRequestException("Necessário informar o email da conta BI");
+      }
+      accountId = await this.usersService.getBiAccountId(createUserDto.accountUser);
+      if (!accountId) {
+        throw new NotFoundException("Conta BI não encontrada");
+      }
+    }
+    const { user, access_token } = await this.usersService.create(createUserDto, accountId);
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      accountID: user.accountID,
+      groupByPB: user.groupByPB,
+      reportsByPB: user.reportsByPB,
+      access_token,
+    };
+  }
+
+  @Post('login')
+  @SkipAuth()
+  @ApiOperation({
+    summary: 'Login do usuário',
+    description: 'Autentica o usuário com email e senha e retorna o JWT de acesso junto aos dados do perfil.',
+  })
+  @ApiOkResponse({ description: 'Usuário autenticado com sucesso. Retorna dados do perfil e access_token JWT.', type: UserResponseDto })
+  @ApiCommonResponses()
+  async login(@Body() loginUserDto: LoginUserDto): Promise<UserResponseDto> {
+    try {
+      const logon = await this.usersService.logon(loginUserDto);
+      return logon;
+    } catch (error) {
+      if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Requisição inválida');
+    }
+  }
+
+  @SkipAuth()
+  @Get('token/:islv')
+  @ApiOperation({
+    summary: 'Gerar token por código islv',
+    description: 'Retorna um token de acesso a partir de um código islv externo. Endpoint público, não requer autenticação.',
+  })
+  @ApiParam({ name: 'islv', description: 'Código islv do usuário externo', example: 'ABC123' })
+  @ApiOkResponse({ description: 'Token gerado com sucesso.' })
+  async setToken(@Param('islv') islv: string) {
+    try {
+      return await this.usersService.setToken(islv);
+    } catch (error) {
+      if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Requisição inválida');
+    }
+  }
+
+  @Get('all')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Listar todos os usuários',
+    description: 'Retorna a lista completa de usuários cadastrados. Restrito a MANAGER.',
+  })
+  @ApiOkResponse({ description: 'Lista de usuários retornada com sucesso.', type: [UserResponseWithPopulateDto] })
+  @ApiCommonResponses()
+  @Roles(ROLE_TYPES.MANAGER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async findAll() {
+    const users = await this.usersService.findAll();
+    return users;
+  }
+
+  @Get('')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Buscar perfil do usuário autenticado',
+    description: 'Retorna os dados do usuário identificado pelo JWT no header Authorization. Acessível a todos os roles.',
+  })
+  @ApiOkResponse({ description: 'Dados do usuário autenticado retornados com sucesso.', type: UserResponseWithPopulateDto })
+  @ApiCommonResponses()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER, ROLE_TYPES.USER, ROLE_TYPES.ADMIN)
+  async findOne(@Req() req: Request) {
+    const user = req.user;
+    const userFromDB = await this.usersService.findOne(user.id);
+    return userFromDB;
+  }
+
+  @Get('id/:id')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Buscar usuário por ID',
+    description: 'Retorna os dados completos de um usuário específico a partir do seu ID MongoDB. Restrito a MANAGER.',
+  })
+  @ApiParam({ name: 'id', description: 'ID MongoDB do usuário', example: '6685a57d6dddeaa56c4a5f15' })
+  @ApiOkResponse({ description: 'Usuário encontrado com sucesso.', type: UserResponseWithPopulateDto })
+  @ApiNotFound('Usuário não encontrado.')
+  @ApiCommonResponses()
+  @Roles(ROLE_TYPES.MANAGER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async findOneByID(@Param('id') id: string) {
+    const userFromDB = await this.usersService.findOne(id);
+    return userFromDB;
+  }
+
+  @Patch('inclued/account/:email')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Incluir conta BI no usuário',
+    description: 'Vincula a conta Power BI identificada pelo email ao usuário autenticado pelo token.',
+  })
+  @ApiParam({ name: 'email', description: 'Email da conta BI a ser vinculada', example: 'conta@empresa.com' })
+  @ApiOkResponse({ description: 'Conta BI vinculada com sucesso. Retorna o perfil atualizado do usuário.', type: UserResponseWithPopulateDto })
+  @ApiNotFound('Conta BI não encontrada.')
+  @ApiCommonResponses()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.USER, ROLE_TYPES.MANAGER)
+  async updateAccountIDs(@Param('email') email: string, @Req() req: Request) {
+    const user = req.user;
+    const accountId = await this.usersService.getBiAccountId(email);
+    await this.usersService.incluedAccountID(user.id, accountId);
+    return await this.usersService.findOne(user.id);
+  }
+
+  @Patch(':userId/group/:groupId')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Adicionar usuário a um grupo',
+    description: 'Vincula o usuário indicado pelo userId ao grupo de usuários indicado pelo groupId. Restrito a MANAGER.',
+  })
+  @ApiParam({ name: 'userId', description: 'ID MongoDB do usuário', example: '6685a57d6dddeaa56c4a5f15' })
+  @ApiParam({ name: 'groupId', description: 'ID MongoDB do grupo de usuários', example: '6685a57d6dddeaa56c4a5f99' })
+  @ApiOkResponse({ description: 'Usuário vinculado ao grupo com sucesso.' })
+  @ApiNotFound('Usuário ou grupo não encontrado.')
+  @ApiCommonResponses()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER)
+  async updateUserGroup(@Param('userId') userId: string, @Param('groupId') groupId: string) {
+    const update = await this.usersService.addUserToGroup(userId, groupId);
+    return update;
+  }
+
+  @Patch('update/:id')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Atualizar dados de um usuário',
+    description: 'Atualiza os dados de um usuário identificado pelo ID. Apenas os campos enviados no body são alterados. Restrito ao papel MANAGER.',
+  })
+  @ApiParam({ name: 'id', description: 'ID MongoDB do usuário a ser atualizado', example: '6685a57d6dddeaa56c4a5f15' })
+  @ApiOkResponse({ description: 'Dados do usuário atualizados com sucesso.' })
+  @ApiNotFound('Usuário não encontrado.')
+  @ApiCommonResponses()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER)
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const update = await this.usersService.update(id, updateUserDto);
+    return update;
+  }
+
+  @Patch('change-password')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Alterar a própria senha',
+    description: 'Permite ao usuário autenticado alterar sua própria senha, informando a senha atual e a nova senha.',
+  })
+  @ApiOkResponse({ description: 'Senha alterada com sucesso.' })
+  @ApiCommonResponses()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER, ROLE_TYPES.ADMIN, ROLE_TYPES.USER)
+  async changePassword(@Req() req: Request, @Body() changePasswordDto: ChangePasswordDto) {
+    return this.usersService.changePassword(req.user.id, changePasswordDto);
+  }
+
+  @Patch(':userId/reports')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Atualizar relatórios do usuário',
+    description: 'Substitui a lista de relatórios (reportsByPB) e grupos (groupIdPB) vinculados ao usuário. Os grupos são derivados automaticamente dos relatórios informados.',
+  })
+  @ApiParam({ name: 'userId', description: 'ID MongoDB do usuário', example: '6685a57d6dddeaa56c4a5f15' })
+  @ApiOkResponse({ description: 'Relatórios do usuário atualizados com sucesso.' })
+  @ApiNotFound('Usuário não encontrado.')
+  @ApiCommonResponses()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER)
+  async updateGroupAndReport(@Param('userId') userId: string, @Body() updateUserDto: UpdateUserDto) {
+    const groupsId = await this.report.filterGroups(updateUserDto.reportIdPB);
+    updateUserDto.groupIdPB = groupsId;
+    const update = await this.usersService.updateUserReports(userId, updateUserDto.reportIdPB, updateUserDto.groupIdPB);
+    return update;
+  }
+
+  @Patch('forget/pass/:email')
+  @SkipAuth()
+  @ApiOperation({
+    summary: 'Reset de senha',
+    description: 'Gera uma nova senha aleatória e a envia ao email informado. Endpoint público, não requer autenticação.',
+  })
+  @ApiParam({ name: 'email', description: 'Email cadastrado do usuário', example: 'usuario@empresa.com' })
+  @ApiOkResponse({ description: 'Nova senha enviada para o email informado.' })
+  @ApiNotFound('Nenhum usuário encontrado com o email informado.')
+  async resetPassword(@Param('email') email: string) {
+    const emailFromDB = await this.usersService.findUserByEmail(email);
+    if (!emailFromDB) {
+      throw new NotFoundException(`Nenhum usuário encontrado com email: ${email}`);
+    }
+    await this.usersService.updatePass(emailFromDB.email);
+    return { message: 'Sua nova senha foi enviada para seu email' };
+  }
+
+  @Delete('delete/:id')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Deletar usuário',
+    description: 'Remove permanentemente o usuário identificado pelo ID. Restrito a MANAGER.',
+  })
+  @ApiParam({ name: 'id', description: 'ID MongoDB do usuário a ser removido', example: '6685a57d6dddeaa56c4a5f15' })
+  @ApiOkResponse({ description: 'Usuário removido com sucesso.' })
+  @ApiNotFound('Usuário não encontrado.')
+  @ApiCommonResponses()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER)
+  async remove(@Param('id') id: string) {
+    await this.usersService.findOne(id);
+    return this.usersService.remove(id);
+  }
+}

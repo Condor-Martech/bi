@@ -1,0 +1,67 @@
+version: "3.7"
+services:
+  powerbi:
+    container_name: bi
+    build: .
+    entrypoint: ./start.sh
+    environment:
+      - TZ=America/Sao_Paulo
+    volumes:
+      - .:/home/node/app
+    ports:
+      - 5524:3000
+    depends_on:
+      - bi_dev
+
+  bi_dev:
+    container_name: bidev
+    image: mongo
+    restart: on-failure
+    volumes:
+      - ./services/dbdata:/data/db
+      - ./services/mongo:/docker-entrypoint-initdb.d
+    environment:
+      - TZ=America/Sao_Paulo
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=app
+
+  mongo-express:
+    container_name: mongo_express_bi
+    image: mongo-express
+    restart: always
+    ports:
+      - 5525:8081
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=bidev
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=root
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=root
+      - ME_CONFIG_BASICAUTH_USERNAME=root
+      - ME_CONFIG_BASICAUTH_PASSWORD=root
+    depends_on:
+      - bi_dev
+  redis:
+    image: redis
+    restart: always
+    command: redis-server
+    hostname: redis
+    # volumes:
+    # - ./services/redis:/data
+
+  redis-commander:
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=redis:6379
+      - REDIS_PASSWORD=admin123
+      - HTTP_USER=root
+      - HTTP_PASSWORD=root
+    ports:
+      - "5521:8081"
+    depends_on:
+      - redis
