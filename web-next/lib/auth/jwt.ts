@@ -23,9 +23,7 @@ function base64UrlDecode(input: string): string | null {
       .replace(/-/g, "+")
       .replace(/_/g, "/")
       .padEnd(input.length + ((4 - (input.length % 4)) % 4), "=");
-    if (typeof atob === "function") return atob(padded);
-    // Node 18+ has atob globally; fallback for older runtimes:
-    return Buffer.from(padded, "base64").toString("utf8");
+    return atob(padded);
   } catch {
     return null;
   }

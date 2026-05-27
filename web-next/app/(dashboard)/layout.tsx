@@ -21,7 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .filter(Boolean);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen">
       {/* SSE notification stream — mounted once for the whole dashboard tree. */}
       <NotificationStreamMount />
 
