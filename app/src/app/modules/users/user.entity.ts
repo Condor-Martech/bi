@@ -37,6 +37,18 @@ export class User {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'UserGroups' })
     userGroups?: string;
 
+    // Hash bcrypt do token de convite. Set durante create()/resendWelcome(),
+    // cleared quando o usuário define a senha em POST /users/set-password.
+    @Prop()
+    invitationTokenHash?: string;
+
+    // TTL do convite (48h por padrão). Comparamos contra Date.now() em setPassword().
+    @Prop()
+    invitationExpiresAt?: Date;
+
+    @Prop({ type: Date, index: true })
+    lastLogin?: Date;
+
 
     constructor(user?: Partial<User>) {
         this.name = user?.name;

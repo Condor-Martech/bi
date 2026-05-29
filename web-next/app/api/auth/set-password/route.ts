@@ -1,0 +1,97 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+import { ACCESS_COOKIE } from "@/lib/auth/cookies";
+import { jwtExpirySeconds } from "@/lib/auth/jwt";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const API_URL = process.env.API_URL ?? "http://localhost:3000";
+
+const setPasswordBodySchema = z.object({
+  token: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/, "Token inválido"),
+  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
+});
+
+const setPasswordResponseSchema = z
+  .object({
+    access_token: z.string().min(10),
+  })
+  .passthrough();
+
+export async function POST(req: Request) {
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+  }
+
+  const parsed = setPasswordBodySchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "invalid_body", issues: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
+
+  let upstream: Response;
+  try {
+    upstream = await fetch(`${API_URL}/users/set-password`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(parsed.data),
+      cache: "no-store",
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { error: "upstream_unreachable", message: (err as Error).message },
+      { status: 502 },
+    );
+  }
+
+  if (upstream.status === 401) {
+    return NextResponse.json({ error: "invalid_or_expired_invite" }, { status: 401 });
+  }
+  if (upstream.status === 400) {
+    return NextResponse.json({ error: "invalid_password" }, { status: 400 });
+  }
+  if (!upstream.ok) {
+    return NextResponse.json(
+      { error: "upstream_error", status: upstream.status },
+      { status: 502 },
+    );
+  }
+
+  let json: unknown;
+  try {
+    json = await upstream.json();
+  } catch {
+    return NextResponse.json({ error: "upstream_invalid_response" }, { status: 502 });
+  }
+
+  const result = setPasswordResponseSchema.safeParse(json);
+  if (!result.success) {
+    return NextResponse.json(
+      { error: "upstream_invalid_shape", issues: result.error.flatten() },
+      { status: 502 },
+    );
+  }
+
+  // Stripp access_token do body — mantemos cookie-only, igual /api/auth/login.
+  const { access_token, ...userFields } = result.data;
+  const maxAge = jwtExpirySeconds(access_token);
+
+  const res = NextResponse.json({ user: userFields });
+  res.cookies.set(ACCESS_COOKIE, access_token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge,
+  });
+  return res;
+}

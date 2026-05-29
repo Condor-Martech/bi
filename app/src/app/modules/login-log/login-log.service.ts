@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { LoginDocument, LoginLog } from './login-log.entity';
 import { User, UserDocument } from '../users/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -15,7 +15,10 @@ export class LoginLogService {
   async registerLoginLog(userId: string): Promise<void> {
     const loginTime = moment().tz('America/Sao_Paulo').toDate();
     const newLog = new this.loginModel({ userId, loginTime });
-    await newLog.save();
+    await Promise.all([
+      newLog.save(),
+      this.userModel.findByIdAndUpdate(userId, { lastLogin: loginTime }).exec(),
+    ]);
   }
 
   async findAll() {

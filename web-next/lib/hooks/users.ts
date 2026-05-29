@@ -9,16 +9,28 @@ import {
   usersKeys,
   type ChangePasswordBody,
   type CreateUserBody,
+  type ListUsersParams,
   type UpdateUserBody,
   type UserListItem,
 } from "@/lib/api/endpoints/users";
 
+function buildUsersQuery(params?: ListUsersParams): string {
+  if (!params) return "";
+  const qs = new URLSearchParams();
+  if (params.search) qs.set("search", params.search);
+  if (params.role) qs.set("role", params.role);
+  if (params.lastLoginFrom) qs.set("lastLoginFrom", params.lastLoginFrom);
+  if (params.lastLoginTo) qs.set("lastLoginTo", params.lastLoginTo);
+  const str = qs.toString();
+  return str ? `?${str}` : "";
+}
+
 /** GET /api/users/all — MANAGER only. */
-export function useUsers() {
+export function useUsers(params?: ListUsersParams) {
   return useQuery<UserListItem[]>({
-    queryKey: usersKeys.list(),
+    queryKey: usersKeys.list(params),
     queryFn: async () => {
-      const data = await apiClient("/api/users/all");
+      const data = await apiClient(`/api/users/all${buildUsersQuery(params)}`);
       return z.array(userListItemSchema).parse(data);
     },
   });

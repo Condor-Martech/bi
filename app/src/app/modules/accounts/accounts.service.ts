@@ -296,4 +296,38 @@ export class AccountsService {
   async getUserCount(accountId: string): Promise<number> {
     return this.userModel.countDocuments({ accountID: accountId });
   }
+
+  /**
+   * Lookup puro por id: NO refresca el token de Azure.
+   * Usar cuando solo necesitás validar existencia o leer metadata local
+   * (creación de usuario, asociación, etc). Para llamadas a Power BI usá
+   * `getIdAccount` que sí refresca.
+   */
+  async findAccountById(id: string): Promise<AccountDocument> {
+    try {
+      const account = await this.accountModel.findById(id);
+      if (!account) {
+        throw new NotFoundException(`Account with ID ${id} not found`);
+      }
+      return account;
+    } catch (error) {
+      if (error instanceof MongooseError.CastError) {
+        throw new BadRequestException(`Invalid ID format: ${error.message}`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Lookup puro por email: NO refresca el token de Azure.
+   * Equivalente a `getBiAccount` pero sin tocar Microsoft. Usar en flujos
+   * que solo necesitan saber que la cuenta existe.
+   */
+  async findAccountByEmail(email: string): Promise<AccountDocument> {
+    const account = await this.accountModel.findOne({ email });
+    if (!account) {
+      throw new NotFoundException(`Account with email: ${email} not found`);
+    }
+    return account;
+  }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ApiAuthError, ApiError } from "./types";
+import { ApiAuthError, ApiError, extractApiMessage } from "./types";
 
 export interface ClientFetchOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
@@ -50,7 +50,11 @@ export async function apiClient<T = unknown>(
   }
   if (!res.ok) {
     const payload = await safeJson(res);
-    throw new ApiError(res.status, payload, `Request failed ${res.status}`);
+    throw new ApiError(
+      res.status,
+      payload,
+      extractApiMessage(payload, `Request failed ${res.status}`),
+    );
   }
 
   const ct = res.headers.get("content-type") ?? "";

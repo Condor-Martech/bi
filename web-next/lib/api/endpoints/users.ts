@@ -35,10 +35,21 @@ export const userListItemSchema = z
     groupByPB: z.array(z.string()).optional(),
     reportsByPB: z.array(z.string()).optional(),
     createdAt: z.union([z.string(), z.date()]).optional(),
+    lastLogin: z.union([z.string(), z.date()]).nullable().optional(),
   })
   .passthrough();
 
 export type UserListItem = z.infer<typeof userListItemSchema>;
+
+/** Querystring para GET /users/all. */
+export interface ListUsersParams {
+  search?: string;
+  role?: Role;
+  /** ISO 8601 */
+  lastLoginFrom?: string;
+  /** ISO 8601 */
+  lastLoginTo?: string;
+}
 
 /** Body for POST /users/create */
 export interface CreateUserBody {
@@ -63,6 +74,7 @@ export interface ChangePasswordBody {
 
 export const usersKeys = {
   all: ["users"] as const,
-  list: () => [...usersKeys.all, "list"] as const,
+  list: (params?: ListUsersParams) =>
+    [...usersKeys.all, "list", params ?? {}] as const,
   detail: (id: string) => [...usersKeys.all, "detail", id] as const,
 } as const;

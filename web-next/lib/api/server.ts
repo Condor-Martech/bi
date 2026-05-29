@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 
-import { ApiAuthError, ApiError } from "./types";
+import { ApiAuthError, ApiError, extractApiMessage } from "./types";
 
 const API_URL = process.env.API_URL ?? "http://localhost:3000";
 
@@ -63,7 +63,11 @@ export async function apiServer<T = unknown>(
   }
   if (!res.ok) {
     const payload = await safeJson(res);
-    throw new ApiError(res.status, payload, `Upstream ${res.status} ${res.statusText}`);
+    throw new ApiError(
+      res.status,
+      payload,
+      extractApiMessage(payload, `Upstream ${res.status} ${res.statusText}`),
+    );
   }
 
   const ct = res.headers.get("content-type") ?? "";

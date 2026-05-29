@@ -52,8 +52,8 @@ export default async function ReportPage({ params }: PageProps) {
 
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
-              <ChartBar className="size-5" />
+            <div className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <ChartBar className="size-3" />
             </div>
             <div className="flex flex-col gap-1">
               <h1 className="text-xl font-semibold leading-tight">

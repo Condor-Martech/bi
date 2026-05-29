@@ -27,6 +27,23 @@ export function useMyReports() {
   });
 }
 
+/** GET /api/reports/all — full inventory. MANAGER only.
+ * Backend returns `{ reports: Report[], count: number }`. */
+const allReportsResponseSchema = z.object({
+  reports: z.array(reportListItemSchema),
+  count: z.number().optional(),
+});
+
+export function useAllReports() {
+  return useQuery<ReportListItem[]>({
+    queryKey: [...reportsKeys.all, "all"] as const,
+    queryFn: async () => {
+      const data = await apiClient("/api/reports/all");
+      return allReportsResponseSchema.parse(data).reports;
+    },
+  });
+}
+
 /**
  * GET /api/reports/:reportIdPB — single report detail incl. embedUrl + Azure token.
  *

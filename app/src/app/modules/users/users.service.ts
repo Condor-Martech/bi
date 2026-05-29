@@ -1,4 +1,5 @@
-import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { randomBytes } from 'crypto';
 import { SendMailWelcomeProducer } from '../../core/jobs/sendMailWelcome-producer';
 import { SendMailResetProducer } from '../../core/jobs/sendMailResetPass-producer';
 import { UserGroupDocument, UserGroups } from '../user-groups/user-group.entity';
@@ -13,15 +14,21 @@ import { AccountsService } from '../accounts/accounts.service';
 import { HashManager } from '../../core/utils/hash.manager';
 import { Model, Error as MongooseError } from 'mongoose';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { SetPasswordDto } from './dto/set-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { ListUsersDto } from './dto/list-users.dto';
 import { User, UserDocument } from './user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { EventsService } from '../events/events.service';
 import { debug } from 'console';
 
+const INVITATION_TTL_MS = 48 * 60 * 60 * 1000;
+
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
     @InjectModel(Filter.name) private filterModel: Model<FilterDocument>,
@@ -39,37 +46,29 @@ export class UsersService {
 
   ) { }
 
-  async create(createUserDto: CreateUserDto, accountId?: string): Promise<{ user: UserDocument; access_token: string }> {
+  async create(
+    createUserDto: CreateUserDto,
+    accountId?: string,
+  ): Promise<{ user: UserDocument; access_token: string; welcomeEmailQueued: boolean }> {
+    let newUser: UserDocument;
+    let rawToken: string;
     try {
-// <<<<<<< HEAD
-// =======
-//       if (accountId) {
-//         const account = await this.accountModel.findById(accountId);
-//         if (account.userCount < Number(process.env.USER_LIMIT)) {
-//           const pass = this.hashManager.generatePassword();
-//           createUserDto.password = await this.hashManager.hash(pass);
-//           const user = new this.userModel(createUserDto);
-//           user.accountID = account._id;
-//           const newUser = await user.save();
-//           const token = this.authenticator.generate({ id: user._id, email: user.email, role: user.role });
-//           await this.accountModel.findByIdAndUpdate({ _id: account._id }, { $inc: { userCount: 1 } }, { $currentDate: { lastModified: true } });
-//           if (user) {
-//             user.password = pass;
-//             this.welcomeQueue.sendMailWelcome(user);
-//           }
-//           return { user: newUser, access_token: token };
-//         } else {
-//           throw new HttpException('A conta BI atingiu limite de usuario', HttpStatus.CONFLICT);
-//         }
-//       }
-// >>>>>>> parent of 071e683 (Correções em AccountService and UserService)
-      const pass = this.hashManager.generatePassword();
-      createUserDto.password = await this.hashManager.hash(pass);
+      // Token de convite: o usuário define a própria senha em /set-password.
+      // Persistimos só o hash bcrypt; o token cru viaja apenas no email.
+      rawToken = randomBytes(32).toString('hex');
+      const invitationTokenHash = await this.hashManager.hash(rawToken);
+      const invitationExpiresAt = new Date(Date.now() + INVITATION_TTL_MS);
 
-      const user = new this.userModel(createUserDto);
+      // password fica indefinida — o login fica bloqueado até o usuário aceitar o convite.
+      const { password: _ignoredPassword, ...rest } = createUserDto;
+      const user = new this.userModel({
+        ...rest,
+        invitationTokenHash,
+        invitationExpiresAt,
+      });
 
       if (accountId) {
-        const account = await this.accountService.getIdAccount(accountId);
+        const account = await this.accountService.findAccountById(accountId);
         const userCount = await this.accountService.getUserCount(accountId);
         if (userCount >= Number(process.env.USER_LIMIT)) {
           throw new ConflictException('A conta BI atingiu limite de usuario');
@@ -78,25 +77,53 @@ export class UsersService {
         await this.accountService.addUserId(user._id, account._id);
       }
 
-      const newUser = await user.save();
-      const token = this.authenticator.generate({ id: newUser._id, email: newUser.email, role: newUser.role });
-
-      newUser.password = pass;
-      this.welcomeQueue.sendMailWelcome(newUser);
-
-      return { user: newUser, access_token: token };
+      newUser = await user.save();
     } catch (error) {
-      throw new InternalServerErrorException('Erro ao criar usuário');
+      if (error instanceof HttpException) throw error;
+      if (error instanceof MongooseError.ValidationError) {
+        throw new BadRequestException(error.message);
+      }
+      if ((error as { code?: number })?.code === 11000) {
+        throw new ConflictException('Email já cadastrado');
+      }
+      throw new InternalServerErrorException(
+        (error as Error)?.message ?? 'Erro ao criar usuário',
+      );
+    }
+
+    // Enqueue do convite: separado do create por design — Redis e Mongo não são atômicos.
+    // Se o enqueue falhar, o user já está em Mongo, e o admin pode reenviar com
+    // POST /users/:id/resend-welcome. Não derrubamos o create por isso.
+    const access_token = this.authenticator.generate({
+      id: newUser._id,
+      email: newUser.email,
+      role: newUser.role,
+    });
+    const welcomeEmailQueued = await this.enqueueWelcome(newUser, rawToken);
+    return { user: newUser, access_token, welcomeEmailQueued };
+  }
+
+  private async enqueueWelcome(user: UserDocument, rawToken: string): Promise<boolean> {
+    try {
+      await this.welcomeQueue.sendMailWelcome({
+        name: user.name,
+        email: user.email,
+        token: rawToken,
+      });
+      return true;
+    } catch (err) {
+      this.logger.error(
+        `Falha ao enfileirar welcome email para userId=${user._id}: ${(err as Error)?.message}`,
+        (err as Error)?.stack,
+      );
+      return false;
     }
   }
   async findUserByEmail(email: string): Promise<UserDocument> {
     return this.userModel.findOne({ email });
   }
   async getBiAccountId(email: string): Promise<string> {
-    const account = await this.accountService.getBiAccount(email);
-    if (!account) {
-      throw new NotFoundException('Conta BI não encontrada');
-    }
+    const account = await this.accountService.findAccountByEmail(email);
     return account._id;
   };
   async logon(loginUserDto: LoginUserDto): Promise<UserResponseDto> {
@@ -175,14 +202,26 @@ export class UsersService {
   }
 
 
-  async findAll() {
-    const data = await this.userModel.find()
-      .exec();
-    if (data.length < 0) {
-      throw new NotFoundException(`Nenhum usuário foi encontrado}`);
+  async findAll(query: ListUsersDto = {}) {
+    const filter: Record<string, any> = {};
+
+    if (query.search) {
+      const escaped = query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const rx = new RegExp(escaped, 'i');
+      filter.$or = [{ name: rx }, { email: rx }, { userIslv: rx }];
     }
 
-    return data;
+    if (query.role) {
+      filter.role = query.role;
+    }
+
+    if (query.lastLoginFrom || query.lastLoginTo) {
+      filter.lastLogin = {};
+      if (query.lastLoginFrom) filter.lastLogin.$gte = new Date(query.lastLoginFrom);
+      if (query.lastLoginTo) filter.lastLogin.$lte = new Date(query.lastLoginTo);
+    }
+
+    return this.userModel.find(filter).exec();
   };
   async findOne(id: string): Promise<any> {
     try {
@@ -422,6 +461,80 @@ export class UsersService {
     const result = await this.userModel.find({ email });
     return result;
   };
+
+  async setPassword(dto: SetPasswordDto): Promise<UserResponseDto> {
+    // Candidatos: users com convite ainda vigente. Conjunto pequeno (onboardings das últimas 48h).
+    // Se o volume crescer, indexar por prefixo do token (primeiros N chars como lookup key).
+    const candidates = await this.userModel
+      .find({
+        invitationTokenHash: { $exists: true, $ne: null },
+        invitationExpiresAt: { $gt: new Date() },
+      })
+      .exec();
+
+    let matched: UserDocument | null = null;
+    for (const candidate of candidates) {
+      const ok = await this.hashManager.compare(dto.token, candidate.invitationTokenHash);
+      if (ok) {
+        matched = candidate;
+        break;
+      }
+    }
+    if (!matched) {
+      throw new UnauthorizedException('Convite inválido ou expirado');
+    }
+
+    matched.password = await this.hashManager.hash(dto.password);
+    matched.invitationTokenHash = undefined;
+    matched.invitationExpiresAt = undefined;
+    await matched.save();
+
+    const access_token = this.authenticator.generate({
+      id: matched._id,
+      email: matched.email,
+      role: matched.role,
+    });
+    await this.loginLog.registerLoginLog(matched._id);
+
+    return {
+      access_token,
+      id: matched._id,
+      name: matched.name,
+      email: matched.email,
+      role: matched.role,
+      userIslv: matched.userIslv,
+      accountID: matched.accountID,
+      groupByPB: matched.groupByPB,
+      reportsByPB: matched.reportsByPB,
+    };
+  }
+
+  async resendWelcome(userId: string): Promise<{ message: string; welcomeEmailQueued: boolean }> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new NotFoundException(`User com ID ${userId} não encontrado`);
+    }
+    // Se já definiu senha, o caminho correto é /users/forget/pass/:email — não reenviamos convite.
+    if (user.password) {
+      throw new ConflictException(
+        'Usuário já definiu senha. Use o fluxo de redefinição de senha.',
+      );
+    }
+
+    const rawToken = randomBytes(32).toString('hex');
+    user.invitationTokenHash = await this.hashManager.hash(rawToken);
+    user.invitationExpiresAt = new Date(Date.now() + INVITATION_TTL_MS);
+    await user.save();
+
+    const welcomeEmailQueued = await this.enqueueWelcome(user, rawToken);
+    return {
+      message: welcomeEmailQueued
+        ? 'Convite reenviado com sucesso'
+        : 'Falha ao enfileirar o convite — verifique a fila',
+      welcomeEmailQueued,
+    };
+  }
+
   async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<{ message: string }> {
     const user = await this.findOneByUserID(userId);
 

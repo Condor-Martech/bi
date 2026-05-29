@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, forwardRef, Req, UseInterceptors, UseGuards, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, forwardRef, Req, UseInterceptors, UseGuards, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, ROLE_TYPES, UserResponseDto, UserResponseWithPopulateDto } from './dto/create-user.dto';
 import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
@@ -9,8 +9,10 @@ import { ReportsService } from '../reports/reports.service';
 import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
 import { RolesGuard } from 'src/app/core/auth/roles.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { SetPasswordDto } from './dto/set-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { ListUsersDto } from './dto/list-users.dto';
 import { UsersService } from './users.service';
 import { Request } from "express";
 
@@ -57,7 +59,7 @@ export class UsersController {
         throw new NotFoundException("Conta BI não encontrada");
       }
     }
-    const { user, access_token } = await this.usersService.create(createUserDto, accountId);
+    const { user, access_token, welcomeEmailQueued } = await this.usersService.create(createUserDto, accountId);
     return {
       id: user.id,
       name: user.name,
@@ -67,6 +69,8 @@ export class UsersController {
       groupByPB: user.groupByPB,
       reportsByPB: user.reportsByPB,
       access_token,
+      // Sinaliza ao frontend se o convite foi enfileirado. Se for false, oferecer "reenviar".
+      welcomeEmailQueued,
     };
   }
 
@@ -113,14 +117,14 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Listar todos os usuários',
-    description: 'Retorna a lista completa de usuários cadastrados. Restrito a MANAGER.',
+    description: 'Retorna a lista de usuários cadastrados, opcionalmente filtrada por busca textual, role e janela de último login. Restrito a MANAGER.',
   })
   @ApiOkResponse({ description: 'Lista de usuários retornada com sucesso.', type: [UserResponseWithPopulateDto] })
   @ApiCommonResponses()
   @Roles(ROLE_TYPES.MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  async findAll() {
-    const users = await this.usersService.findAll();
+  async findAll(@Query() query: ListUsersDto) {
+    const users = await this.usersService.findAll(query);
     return users;
   }
 
@@ -242,6 +246,33 @@ export class UsersController {
     updateUserDto.groupIdPB = groupsId;
     const update = await this.usersService.updateUserReports(userId, updateUserDto.reportIdPB, updateUserDto.groupIdPB);
     return update;
+  }
+
+  @Post('set-password')
+  @SkipAuth()
+  @ApiOperation({
+    summary: 'Definir senha via convite',
+    description: 'Endpoint público. Valida o token de convite recebido por email e define a senha do usuário. Retorna o JWT de acesso.',
+  })
+  @ApiOkResponse({ description: 'Senha definida com sucesso. Retorna access_token + perfil.', type: UserResponseDto })
+  async setPassword(@Body() setPasswordDto: SetPasswordDto): Promise<UserResponseDto> {
+    return this.usersService.setPassword(setPasswordDto);
+  }
+
+  @Post(':id/resend-welcome')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLE_TYPES.MANAGER, ROLE_TYPES.ADMIN)
+  @ApiOperation({
+    summary: 'Reenviar convite de boas-vindas',
+    description: 'Gera um novo token de convite e re-enfileira o email. Falha com 409 se o usuário já definiu senha (nesse caso, use o reset de senha).',
+  })
+  @ApiParam({ name: 'id', description: 'ID MongoDB do usuário', example: '6685a57d6dddeaa56c4a5f15' })
+  @ApiOkResponse({ description: 'Convite reenviado (ou enfileirado).' })
+  @ApiNotFound('Usuário não encontrado.')
+  @ApiCommonResponses()
+  async resendWelcome(@Param('id') id: string) {
+    return this.usersService.resendWelcome(id);
   }
 
   @Patch('forget/pass/:email')

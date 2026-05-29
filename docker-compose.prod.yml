@@ -1,0 +1,100 @@
+# Portainer stack for legacy BI (NestJS API + Next.js dashboard).
+#
+# Deploy in Portainer:
+#   1. Settings → Registries → add GHCR (URL: ghcr.io, user: <github-user>, password: <PAT with read:packages>).
+#   2. Stacks → Add stack → Web editor → paste this file.
+#   3. In "Environment variables" pane below the editor, add the keys listed in
+#      app.env.example (or load the file). APP_TAG/WEB_TAG are optional — leave
+#      empty to use :latest.
+#   4. Deploy.
+#
+# To roll a version: edit the stack, set APP_TAG=sha-abc1234 (or v1.2.3), Update stack.
+
+name: bi-legacy
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    # ports: ["27017:27017"]  # uncomment ONLY for host-side migrations/debug
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  app:
+    image: ghcr.io/condor-martech/bi-app:${APP_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      # --- Service discovery (fixed for this compose network — do NOT override in Portainer) ---
+      MONGO_DSN: mongodb://mongo:27017/powerbi
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      PORT: "3000"
+      NODE_ENV: production
+
+      # --- Secrets / config (set these in the Portainer stack UI) ---
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      BCRYPT_COST: ${BCRYPT_COST:-10}
+
+      POWER_BI_BASE_URL: ${POWER_BI_BASE_URL}
+      AZURE_URL: ${AZURE_URL}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+      AZURE_GRANT_TYPE: ${AZURE_GRANT_TYPE:-password}
+      AZURE_GRANT_TYPE2: ${AZURE_GRANT_TYPE2:-refresh_token}
+      AZURE_SCOPE: ${AZURE_SCOPE:-openid}
+      AZURE_RESOURCE: ${AZURE_RESOURCE:-https://analysis.windows.net/powerbi/api}
+
+      MAIL_SMTP: ${MAIL_SMTP}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      APP_MAIL_USER: ${APP_MAIL_USER}
+      APP_MAIL_PASS: ${APP_MAIL_PASS}
+      # Condor's Postfix only speaks TLS 1.0 — keep TLSv1 unless that changes.
+      MAIL_MIN_TLS: ${MAIL_MIN_TLS:-TLSv1}
+
+      BASE_URL: ${BASE_URL}
+      USER_LIMIT: ${USER_LIMIT:-100}
+      MULTER_TYPES: ${MULTER_TYPES:-image/png,image/jpeg,image/svg+xml}
+
+      BULL_BOARD_USER: ${BULL_BOARD_USER}
+      BULL_BOARD_PASS: ${BULL_BOARD_PASS}
+    depends_on:
+      mongo: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    ports:
+      - "3000:3000"  # Swagger /api + Bull Board /admin/queues. Front a reverse proxy in real prod.
+
+  web-next:
+    image: ghcr.io/condor-martech/bi-web-next:${WEB_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3002"
+      HOSTNAME: "0.0.0.0"
+      # API_URL is server-side only — Next BFF uses it to reach the NestJS API over the compose network.
+      API_URL: http://app:3000
+    depends_on:
+      - app
+    ports:
+      - "3002:3002"
+
+volumes:
+  mongo-data:
+  redis-data:

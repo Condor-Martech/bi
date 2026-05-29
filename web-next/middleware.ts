@@ -4,12 +4,19 @@ import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import { isJwtExpired } from "@/lib/auth/jwt";
 
 /** Public paths — gate everything else behind the cookie check. */
-const PUBLIC_EXACT = new Set(["/login", "/api/auth/login", "/api/auth/logout"]);
+const PUBLIC_EXACT = new Set([
+  "/login",
+  "/api/auth/login",
+  "/api/auth/logout",
+  "/api/auth/set-password",
+]);
 
 function isPublic(pathname: string): boolean {
   if (PUBLIC_EXACT.has(pathname)) return true;
   if (pathname.startsWith("/_next/")) return true;
   if (pathname.startsWith("/favicon")) return true;
+  // /set-password/<token> — fluxo de convite, sem cookie ainda.
+  if (pathname.startsWith("/set-password/")) return true;
   return false;
 }
 

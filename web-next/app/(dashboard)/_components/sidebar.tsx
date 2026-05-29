@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LayoutGroup, motion } from "motion/react";
 import {
   ChevronLeft,
+  HelpCircle,
   Home,
   LayoutDashboard,
   Settings,
@@ -21,6 +22,7 @@ import { BroadcastNotificationDialog } from "./broadcast-notification-dialog";
 import { LogoutButton } from "./logout-button";
 import { NotificationBell } from "./notification-bell";
 import { SidebarAccountsSection } from "./sidebar-accounts-section";
+import { ThemeToggle } from "./theme-toggle";
 
 interface NavItem {
   href: string;
@@ -31,6 +33,7 @@ interface NavItem {
 
 const NAV: ReadonlyArray<NavItem> = [
   { href: "/", label: "Inicio", icon: Home },
+  { href: "/ajuda", label: "Ajuda", icon: HelpCircle },
   { href: "/configuracao", label: "Configurações", icon: Settings },
 ];
 
@@ -130,6 +133,7 @@ export function Sidebar({ role, defaultCollapsed, defaultOpenAccountIds }: Sideb
             ⌘K para buscar
           </p>
         )}
+        <ThemeToggle collapsed={collapsed} />
         <LogoutButton collapsed={collapsed} />
       </div>
 

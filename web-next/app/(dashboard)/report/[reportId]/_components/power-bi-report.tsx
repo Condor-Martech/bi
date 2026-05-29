@@ -64,7 +64,7 @@ export function PowerBIReport({ reportId, initialData }: PowerBIReportProps) {
         embedUrl: data.embedUrl,
         id: data.reportIdPB,
         settings: {
-          filterPaneEnabled: true,
+          filterPaneEnabled: false,
           navContentPaneEnabled: true,
         },
       };
@@ -134,7 +134,7 @@ export function PowerBIReport({ reportId, initialData }: PowerBIReportProps) {
       )}
       <div ref={containerRef} className="flex-1" aria-label="Power BI report" />
       <div className="flex items-center justify-end border-t border-border bg-muted/40 px-4 py-1.5">
-        <span className="font-mono text-[10px] text-muted-foreground">Powered by Power BI</span>
+        <span className="font-mono text-[10px] text-muted-foreground">Powered by Plataforma BI</span>
       </div>
     </div>
   );
