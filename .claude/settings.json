@@ -27,7 +27,11 @@
       "Bash(eza -la /Users/editor2/project/2026/new-bi/legacy/app/Dockerfile* /Users/editor2/project/2026/new-bi/legacy/web-next/Dockerfile*)",
       "Bash(eza -la /Users/editor2/project/2026/new-bi/legacy/)",
       "Bash(eza -la /Users/editor2/project/2026/new-bi/legacy/app/)",
-      "Bash(eza -la /Users/editor2/project/2026/new-bi/legacy/web-next/)"
+      "Bash(eza -la /Users/editor2/project/2026/new-bi/legacy/web-next/)",
+      "Bash(git tag *)",
+      "Bash(git commit *)",
+      "Bash(gh workflow *)",
+      "Bash(gh run *)"
     ]
   }
 }
