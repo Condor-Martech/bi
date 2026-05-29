@@ -28,8 +28,8 @@ export function BackupRestore() {
 
   function onBackup() {
     create.mutate(undefined, {
-      onSuccess: ({ file }) => toast.success(`Backup creado: ${file}`),
-      onError: (err) => toast.error((err as Error).message ?? "Error al crear backup."),
+      onSuccess: ({ file }) => toast.success(`Backup criado: ${file}`),
+      onError: (err) => toast.error((err as Error).message ?? "Erro ao criar backup."),
     });
   }
 
@@ -39,11 +39,11 @@ export function BackupRestore() {
       { fileName: selectedFile },
       {
         onSuccess: () => {
-          toast.success(`Restore aplicado desde ${selectedFile}.`);
+          toast.success(`Restauração aplicada a partir de ${selectedFile}.`);
           setRestoreOpen(false);
           setSelectedFile("");
         },
-        onError: (err) => toast.error((err as Error).message ?? "Error al restaurar."),
+        onError: (err) => toast.error((err as Error).message ?? "Erro ao restaurar."),
       },
     );
   }
@@ -53,7 +53,7 @@ export function BackupRestore() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <DatabaseBackup className="size-4" />
-          Backup y restore
+          Backup e restauração
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -64,7 +64,7 @@ export function BackupRestore() {
             ) : (
               <Archive className="size-3.5" />
             )}
-            {create.isPending ? "Generando…" : "Crear backup ahora"}
+            {create.isPending ? "Gerando…" : "Criar backup agora"}
           </Button>
           <Button
             variant="secondary"
@@ -79,13 +79,13 @@ export function BackupRestore() {
 
         <div className="space-y-1 text-sm">
           <p className="text-xs font-medium text-muted-foreground">
-            Backups disponibles ({backups.length})
+            Backups disponíveis ({backups.length})
           </p>
           {isPending ? (
-            <p className="text-xs text-muted-foreground">Cargando…</p>
+            <p className="text-xs text-muted-foreground">Carregando…</p>
           ) : backups.length === 0 ? (
             <p className="text-xs text-muted-foreground">
-              Todavía no hay backups. Crea uno con el botón de arriba.
+              Ainda não há backups. Crie um com o botão acima.
             </p>
           ) : (
             <ul className="space-y-0.5 font-mono text-xs">
@@ -95,7 +95,7 @@ export function BackupRestore() {
                 </li>
               ))}
               {backups.length > 10 && (
-                <li className="text-muted-foreground">… {backups.length - 10} más</li>
+                <li className="text-muted-foreground">… mais {backups.length - 10}</li>
               )}
             </ul>
           )}
@@ -107,11 +107,11 @@ export function BackupRestore() {
           <DialogHeader>
             <DialogTitle>Restaurar backup</DialogTitle>
             <DialogDescription>
-              ⚠️ Esta operación REEMPLAZA datos en producción. Asegurate del archivo.
+              ⚠️ Esta operação SUBSTITUI dados em produção. Confirme o arquivo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">
-            <Label htmlFor="file">Nombre del archivo</Label>
+            <Label htmlFor="file">Nome do arquivo</Label>
             <Input
               id="file"
               value={selectedFile}

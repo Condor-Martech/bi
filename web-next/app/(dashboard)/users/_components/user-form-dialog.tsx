@@ -39,9 +39,9 @@ interface Props {
 }
 
 const ROLE_LABELS: Record<Role, string> = {
-  manager: "Manager — acceso total",
-  admin: "Admin — gestión de contenido",
-  user: "User — solo lectura de reportes",
+  manager: "Manager — acesso total",
+  admin: "Admin — gestão de conteúdo",
+  user: "User — apenas leitura de relatórios",
 };
 
 export function UserFormDialog({ open, onOpenChange, user }: Props) {
@@ -79,10 +79,10 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
         { id: user._id, body },
         {
           onSuccess: () => {
-            toast.success("Usuario actualizado.");
+            toast.success("Usuário atualizado.");
             onOpenChange(false);
           },
-          onError: (err) => toast.error((err as Error).message ?? "Error al actualizar."),
+          onError: (err) => toast.error((err as Error).message ?? "Erro ao atualizar."),
         },
       );
       return;
@@ -97,10 +97,10 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
     };
     create.mutate(body, {
       onSuccess: () => {
-        toast.success("Usuario creado. La contraseña fue enviada por email.");
+        toast.success("Usuário criado. A senha foi enviada por e-mail.");
         onOpenChange(false);
       },
-      onError: (err) => toast.error((err as Error).message ?? "Error al crear."),
+      onError: (err) => toast.error((err as Error).message ?? "Erro ao criar."),
     });
   }
 
@@ -108,21 +108,21 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar usuario" : "Crear usuario"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Editar usuário" : "Criar usuário"}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá los datos del usuario. Los campos vacíos no se actualizan."
-              : "El backend genera la contraseña inicial y la envía al email del usuario."}
+              ? "Altere os dados do usuário. Os campos vazios não são atualizados."
+              : "O backend gera a senha inicial e a envia para o e-mail do usuário."}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name">Nome</Label>
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mail</Label>
             <Input
               id="email"
               type="email"
@@ -132,7 +132,7 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="role">Rol</Label>
+            <Label htmlFor="role">Função</Label>
             <Select value={role} onValueChange={(v) => setRole(v as Role)}>
               <SelectTrigger id="role">
                 <SelectValue />
@@ -148,7 +148,7 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
           </div>
           {needsAccount && (
             <div className="space-y-1.5">
-              <Label htmlFor="accountUser">Cuenta BI</Label>
+              <Label htmlFor="accountUser">Conta BI</Label>
               <Select
                 value={accountUser}
                 onValueChange={setAccountUser}
@@ -159,12 +159,12 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
                   <SelectValue
                     placeholder={
                       accountsQuery.isLoading
-                        ? "Cargando cuentas…"
+                        ? "Carregando contas…"
                         : accountsQuery.isError
-                          ? "No se pudieron cargar las cuentas"
+                          ? "Não foi possível carregar as contas"
                           : accounts.length === 0
-                            ? "No hay cuentas BI cargadas"
-                            : "Elegí una cuenta"
+                            ? "Não há contas BI carregadas"
+                            : "Selecione uma conta"
                     }
                   />
                 </SelectTrigger>
@@ -178,7 +178,7 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Obligatorio para rol &quot;user&quot;. Vincula al usuario a una cuenta Power BI.
+                Obrigatório para a função &quot;user&quot;. Vincula o usuário a uma conta Power BI.
               </p>
             </div>
           )}
@@ -202,7 +202,7 @@ export function UserFormDialog({ open, onOpenChange, user }: Props) {
               Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Guardando…" : isEdit ? "Guardar" : "Crear"}
+              {isPending ? "Salvando…" : isEdit ? "Salvar" : "Criar"}
             </Button>
           </DialogFooter>
         </form>

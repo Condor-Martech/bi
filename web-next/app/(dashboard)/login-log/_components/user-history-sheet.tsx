@@ -43,15 +43,15 @@ export function UserHistorySheet({
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
           <SheetTitle>
-            {header?.name ?? "Historial de acceso"}
+            {header?.name ?? "Histórico de acesso"}
             {header?.isDeletedUser ? (
               <Badge variant="outline" className="ml-2 text-[10px]">
-                Eliminado
+                Excluído
               </Badge>
             ) : null}
           </SheetTitle>
           <SheetDescription>
-            {userRows.length} {userRows.length === 1 ? "acceso registrado" : "accesos registrados"}
+            {userRows.length} {userRows.length === 1 ? "acesso registrado" : "acessos registrados"}
           </SheetDescription>
         </SheetHeader>
 
@@ -73,9 +73,9 @@ export function UserHistorySheet({
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Clock className="size-3.5" />
                 <span>
-                  Primer acceso registrado:{" "}
+                  Primeiro acesso registrado:{" "}
                   <span className="font-mono">
-                    {new Date(firstAccessMs).toLocaleString("es-AR")}
+                    {new Date(firstAccessMs).toLocaleString("pt-BR")}
                   </span>
                 </span>
               </div>
@@ -88,7 +88,7 @@ export function UserHistorySheet({
             {userRows.map((r) => {
               const label =
                 r.loginTimeMs > 0
-                  ? new Date(r.loginTimeMs).toLocaleString("es-AR")
+                  ? new Date(r.loginTimeMs).toLocaleString("pt-BR")
                   : r.loginTimeRaw;
               return (
                 <li key={r.id} className="relative">
@@ -98,7 +98,7 @@ export function UserHistorySheet({
               );
             })}
             {userRows.length === 0 ? (
-              <li className="text-xs text-muted-foreground">Sin accesos registrados.</li>
+              <li className="text-xs text-muted-foreground">Sem acessos registrados.</li>
             ) : null}
           </ol>
         </div>

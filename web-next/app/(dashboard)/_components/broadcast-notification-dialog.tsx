@@ -49,19 +49,19 @@ export function BroadcastNotificationDialog() {
     const trimmedTitle = title.trim();
     const trimmedMessage = message.trim();
     if (!trimmedTitle || !trimmedMessage) {
-      toast.error("Título y mensaje son obligatorios.");
+      toast.error("Título e mensagem são obrigatórios.");
       return;
     }
     try {
       await broadcast.mutateAsync({ title: trimmedTitle, message: trimmedMessage });
-      toast.success("Notificación enviada a todos los usuarios.");
+      toast.success("Notificação enviada a todos os usuários.");
       reset();
       setOpen(false);
     } catch (err) {
       if (err instanceof ApiError && err.status === 403) {
-        toast.error("Solo un MANAGER puede enviar notificaciones.");
+        toast.error("Apenas um MANAGER pode enviar notificações.");
       } else {
-        toast.error("No se pudo enviar la notificación.");
+        toast.error("Não foi possível enviar a notificação.");
       }
     }
   }
@@ -78,7 +78,7 @@ export function BroadcastNotificationDialog() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Enviar notificación a todos"
+          aria-label="Enviar notificação a todos"
           className="h-8 w-8 text-sidebar-foreground/80 hover:text-sidebar-foreground"
         >
           <Megaphone className="h-4 w-4" />
@@ -86,9 +86,9 @@ export function BroadcastNotificationDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Enviar notificación</DialogTitle>
+          <DialogTitle>Enviar notificação</DialogTitle>
           <DialogDescription>
-            Se entregará en tiempo real a todos los usuarios del sistema. No se puede deshacer.
+            Será entregue em tempo real a todos os usuários do sistema. Não é possível desfazer.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
@@ -99,7 +99,7 @@ export function BroadcastNotificationDialog() {
               value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, TITLE_MAX))}
               maxLength={TITLE_MAX}
-              placeholder="Nuevo reporte disponible"
+              placeholder="Novo relatório disponível"
               required
               disabled={broadcast.isPending}
             />
@@ -108,14 +108,14 @@ export function BroadcastNotificationDialog() {
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="bn-message">Mensaje</Label>
+            <Label htmlFor="bn-message">Mensagem</Label>
             <Textarea
               id="bn-message"
               value={message}
               onChange={(e) => setMessage(e.target.value.slice(0, MESSAGE_MAX))}
               maxLength={MESSAGE_MAX}
               rows={4}
-              placeholder="Contenido de la notificación…"
+              placeholder="Conteúdo da notificação…"
               required
               disabled={broadcast.isPending}
             />
@@ -147,7 +147,7 @@ export function BroadcastNotificationDialog() {
                   ) : (
                     <Send className="size-3.5" />
                   )}
-                  {broadcast.isPending ? "Enviando…" : "Enviar a todos"}
+                  {broadcast.isPending ? "Enviando…" : "Enviar para todos"}
                 </motion.span>
               </AnimatePresence>
             </MotionButton>

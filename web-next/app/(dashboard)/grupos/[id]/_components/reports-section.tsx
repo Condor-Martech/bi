@@ -90,8 +90,8 @@ export function ReportsSection({ group }: Props) {
     update.mutate(
       { id: group._id, body: { reports: [...selected] } },
       {
-        onSuccess: () => toast.success("Reportes actualizados."),
-        onError: (err) => toast.error((err as Error).message ?? "Error al guardar."),
+        onSuccess: () => toast.success("Relatórios atualizados."),
+        onError: (err) => toast.error((err as Error).message ?? "Erro ao salvar."),
       },
     );
   }
@@ -100,28 +100,28 @@ export function ReportsSection({ group }: Props) {
     <div className="space-y-4 rounded-md border border-border bg-card p-4">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h2 className="text-sm font-semibold">Reportes asignados</h2>
+          <h2 className="text-sm font-semibold">Relatórios atribuídos</h2>
           <p className="text-xs text-muted-foreground">
-            Power BI reports que los miembros del grupo pueden ver.
+            Relatórios Power BI que os membros do grupo podem ver.
           </p>
         </div>
         <Popover open={popOpen} onOpenChange={setPopOpen}>
           <PopoverTrigger asChild>
             <Button size="sm" className="gap-1.5">
               <Plus className="size-3.5" />
-              Agregar reportes
+              Adicionar relatórios
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-[420px] p-0">
             <Command shouldFilter={false}>
               <CommandInput
-                placeholder="Buscar por nombre o ID…"
+                placeholder="Pesquisar por nome ou ID…"
                 value={query}
                 onValueChange={setQuery}
               />
               <div className="flex items-center justify-between border-b border-border px-3 py-2 text-xs text-muted-foreground">
                 <span>
-                  {selected.size} de {allReports.length} seleccionados
+                  {selected.size} de {allReports.length} selecionados
                 </span>
                 {selected.size > 0 && (
                   <button
@@ -129,13 +129,13 @@ export function ReportsSection({ group }: Props) {
                     onClick={() => setSelected(new Set())}
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Limpiar
+                    Limpar
                   </button>
                 )}
               </div>
               <CommandList className="max-h-72">
                 <CommandEmpty>
-                  {isPending ? "Cargando…" : "No hay reportes."}
+                  {isPending ? "Carregando…" : "Sem relatórios."}
                 </CommandEmpty>
                 <CommandGroup>
                   {searchable.map((r) => {
@@ -157,7 +157,7 @@ export function ReportsSection({ group }: Props) {
                         />
                         <FileText className="size-3.5 shrink-0 text-muted-foreground" />
                         <div className="flex min-w-0 flex-1 flex-col">
-                          <span className="truncate text-sm">{r.name ?? "(sin nombre)"}</span>
+                          <span className="truncate text-sm">{r.name ?? "(sem nome)"}</span>
                           <span className="truncate font-mono text-[10px] text-muted-foreground">
                             {id}
                           </span>
@@ -174,7 +174,7 @@ export function ReportsSection({ group }: Props) {
                   className="w-full"
                   onClick={() => setPopOpen(false)}
                 >
-                  Listo
+                  Pronto
                 </Button>
               </div>
             </Command>
@@ -193,9 +193,9 @@ export function ReportsSection({ group }: Props) {
           <EmptyStateIcon asChild>
             <FileText />
           </EmptyStateIcon>
-          <EmptyStateTitle>Sin reportes</EmptyStateTitle>
+          <EmptyStateTitle>Sem relatórios</EmptyStateTitle>
           <EmptyStateDescription>
-            Asigná reportes al grupo para que sus miembros los puedan ver.
+            Atribua relatórios ao grupo para que seus membros possam vê-los.
           </EmptyStateDescription>
         </EmptyState>
       ) : (
@@ -207,7 +207,7 @@ export function ReportsSection({ group }: Props) {
                 <div className="flex min-w-0 items-center gap-2">
                   <FileText className="size-4 shrink-0 text-muted-foreground" />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{r.name ?? "(sin nombre)"}</div>
+                    <div className="truncate text-sm font-medium">{r.name ?? "(sem nome)"}</div>
                     <div className="truncate font-mono text-[10px] text-muted-foreground">
                       {id}
                     </div>
@@ -218,7 +218,7 @@ export function ReportsSection({ group }: Props) {
                   size="icon"
                   className="size-8 text-muted-foreground hover:text-destructive"
                   onClick={() => remove(id)}
-                  aria-label={`Quitar ${r.name ?? id}`}
+                  aria-label={`Remover ${r.name ?? id}`}
                 >
                   <X className="size-4" />
                 </Button>
@@ -234,9 +234,9 @@ export function ReportsSection({ group }: Props) {
                 <FileText className="size-4 shrink-0 text-muted-foreground" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Reporte no encontrado</span>
+                    <span className="text-sm font-medium">Relatório não encontrado</span>
                     <Badge variant="destructive" className="uppercase">
-                      Huérfano
+                      Órfão
                     </Badge>
                   </div>
                   <div className="truncate font-mono text-[10px] text-muted-foreground">
@@ -249,7 +249,7 @@ export function ReportsSection({ group }: Props) {
                 size="icon"
                 className="size-8 hover:text-destructive"
                 onClick={() => remove(id)}
-                aria-label="Quitar"
+                aria-label="Remover"
               >
                 <X className="size-4" />
               </Button>
@@ -261,10 +261,10 @@ export function ReportsSection({ group }: Props) {
       {dirty && (
         <div className="flex items-center justify-end gap-2 border-t border-border pt-3">
           <Button variant="ghost" size="sm" onClick={reset} disabled={update.isPending}>
-            Cancelar cambios
+            Cancelar alterações
           </Button>
           <Button size="sm" onClick={save} disabled={update.isPending} className="gap-1.5">
-            {update.isPending ? "Guardando…" : (<><Check className="size-3.5" /> Guardar reportes</>)}
+            {update.isPending ? "Salvando…" : (<><Check className="size-3.5" /> Salvar relatórios</>)}
           </Button>
         </div>
       )}

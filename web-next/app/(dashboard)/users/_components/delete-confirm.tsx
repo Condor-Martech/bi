@@ -29,7 +29,7 @@ export function DeleteConfirm({
   description,
   onConfirm,
   isPending = false,
-  confirmLabel = "Eliminar",
+  confirmLabel = "Excluir",
 }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -45,7 +45,7 @@ export function DeleteConfirm({
             disabled={isPending}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isPending ? "Eliminando…" : confirmLabel}
+            {isPending ? "Excluindo…" : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

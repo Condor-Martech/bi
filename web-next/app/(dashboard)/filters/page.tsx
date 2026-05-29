@@ -57,10 +57,10 @@ export default function FiltersPage() {
   function confirmDelete(f: Filter) {
     del.mutate(f._id, {
       onSuccess: () => {
-        toast.success("Filtro eliminado.");
+        toast.success("Filtro excluído.");
         setDeleteTarget(undefined);
       },
-      onError: (err) => toast.error((err as Error).message ?? "No se pudo eliminar."),
+      onError: (err) => toast.error((err as Error).message ?? "Não foi possível excluir."),
     });
   }
 
@@ -70,12 +70,12 @@ export default function FiltersPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Filtros row-level</h1>
           <p className="text-sm text-muted-foreground">
-            Filtros aplicados al embed de Power BI según el usuario.
+            Filtros aplicados ao embed do Power BI conforme o usuário.
           </p>
         </div>
         <Button onClick={openCreate} disabled={!me} className="gap-1.5">
           <Plus className="size-3.5" />
-          Crear filtro
+          Criar filtro
         </Button>
       </header>
 
@@ -83,10 +83,10 @@ export default function FiltersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Tabla</TableHead>
-              <TableHead>Columna</TableHead>
+              <TableHead>Tabela</TableHead>
+              <TableHead>Coluna</TableHead>
               <TableHead>Valor</TableHead>
-              <TableHead>Usuario</TableHead>
+              <TableHead>Usuário</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -112,7 +112,7 @@ export default function FiltersPage() {
             {!isPending && !error && filters.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                  No hay filtros cargados.
+                  Nenhum filtro cadastrado.
                 </TableCell>
               </TableRow>
             )}
@@ -145,7 +145,7 @@ export default function FiltersPage() {
                         onClick={() => setDeleteTarget(f)}
                       >
                         <Trash2 className="size-3.5" />
-                        Eliminar
+                        Excluir
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -169,8 +169,8 @@ export default function FiltersPage() {
         onOpenChange={(v) => {
           if (!v) setDeleteTarget(undefined);
         }}
-        title="¿Eliminar este filtro?"
-        description={`Se elimina el filtro ${deleteTarget?.table}.${deleteTarget?.column}=${deleteTarget?.value}.`}
+        title="Excluir este filtro?"
+        description={`O filtro ${deleteTarget?.table}.${deleteTarget?.column}=${deleteTarget?.value} será excluído.`}
         onConfirm={() => deleteTarget && confirmDelete(deleteTarget)}
         isPending={del.isPending}
       />

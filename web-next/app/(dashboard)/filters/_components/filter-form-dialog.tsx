@@ -62,10 +62,10 @@ export function FilterFormDialog({ open, onOpenChange, userId, filter }: Props) 
         { id: filter._id, body: { table, column, value } },
         {
           onSuccess: () => {
-            toast.success("Filtro actualizado.");
+            toast.success("Filtro atualizado.");
             onOpenChange(false);
           },
-          onError: (err) => toast.error((err as Error).message ?? "Error al actualizar."),
+          onError: (err) => toast.error((err as Error).message ?? "Erro ao atualizar."),
         },
       );
       return;
@@ -74,10 +74,10 @@ export function FilterFormDialog({ open, onOpenChange, userId, filter }: Props) 
       { table, column, value, userId },
       {
         onSuccess: () => {
-          toast.success("Filtro creado.");
+          toast.success("Filtro criado.");
           onOpenChange(false);
         },
-        onError: (err) => toast.error((err as Error).message ?? "Error al crear."),
+        onError: (err) => toast.error((err as Error).message ?? "Erro ao criar."),
       },
     );
   }
@@ -91,20 +91,20 @@ export function FilterFormDialog({ open, onOpenChange, userId, filter }: Props) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar filtro" : "Crear filtro row-level"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Editar filtro" : "Criar filtro row-level"}</DialogTitle>
           <DialogDescription>
-            Filtra una columna de una tabla Power BI por un valor. Aplica a los reportes del
-            usuario asociado.
+            Filtra uma coluna de uma tabela do Power BI por um valor. Aplica aos relatórios do
+            usuário associado.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-3">
           {!isEdit && (
             <div className="space-y-1.5">
-              <Label htmlFor="dataset">Dataset (ayuda — opcional)</Label>
+              <Label htmlFor="dataset">Dataset (ajuda — opcional)</Label>
               <Select value={datasetId} onValueChange={setDatasetId}>
                 <SelectTrigger id="dataset">
-                  <SelectValue placeholder="Elegí un dataset para ver sus tablas" />
+                  <SelectValue placeholder="Selecione um dataset para ver suas tabelas" />
                 </SelectTrigger>
                 <SelectContent>
                   {datasets.data?.map((d) => (
@@ -116,18 +116,18 @@ export function FilterFormDialog({ open, onOpenChange, userId, filter }: Props) 
               </Select>
               {selectedDataset && (
                 <p className="text-xs text-muted-foreground">
-                  {tableOptions.length} tablas disponibles.
+                  {tableOptions.length} tabelas disponíveis.
                 </p>
               )}
             </div>
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="table">Tabla</Label>
+            <Label htmlFor="table">Tabela</Label>
             {tableOptions.length > 0 ? (
               <Select value={table} onValueChange={setTable}>
                 <SelectTrigger id="table">
-                  <SelectValue placeholder="Elegí una tabla" />
+                  <SelectValue placeholder="Selecione uma tabela" />
                 </SelectTrigger>
                 <SelectContent>
                   {tableOptions.map((t) => (
@@ -149,11 +149,11 @@ export function FilterFormDialog({ open, onOpenChange, userId, filter }: Props) 
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="column">Columna</Label>
+            <Label htmlFor="column">Coluna</Label>
             {columnOptions.length > 0 ? (
               <Select value={column} onValueChange={setColumn}>
                 <SelectTrigger id="column">
-                  <SelectValue placeholder="Elegí una columna" />
+                  <SelectValue placeholder="Selecione uma coluna" />
                 </SelectTrigger>
                 <SelectContent>
                   {columnOptions.map((c) => (
@@ -195,7 +195,7 @@ export function FilterFormDialog({ open, onOpenChange, userId, filter }: Props) 
               Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Guardando…" : isEdit ? "Guardar" : "Crear"}
+              {isPending ? "Salvando…" : isEdit ? "Salvar" : "Criar"}
             </Button>
           </DialogFooter>
         </form>

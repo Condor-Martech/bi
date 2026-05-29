@@ -69,7 +69,7 @@ export function ByUserTable({ rows, loading, emptyState, onSelectUser }: ByUserT
           const r = row.original;
           const label =
             r.lastAccessMs > 0
-              ? new Date(r.lastAccessMs).toLocaleString("es-AR")
+              ? new Date(r.lastAccessMs).toLocaleString("pt-BR")
               : r.lastAccessRaw;
           return <span className="font-mono text-xs text-muted-foreground">{label}</span>;
         },

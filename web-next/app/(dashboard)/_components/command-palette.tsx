@@ -69,15 +69,15 @@ export function CommandPalette({ isPrivileged }: Props) {
   }
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen} title="Command palette" description="Navegación y acciones rápidas">
-      <CommandInput placeholder="Buscar página o acción…" />
+    <CommandDialog open={open} onOpenChange={setOpen} title="Command palette" description="Navegação e ações rápidas">
+      <CommandInput placeholder="Pesquisar página ou ação…" />
       <CommandList>
-        <CommandEmpty>Sin resultados.</CommandEmpty>
+        <CommandEmpty>Sem resultados.</CommandEmpty>
 
-        <CommandGroup heading="Navegación">
+        <CommandGroup heading="Navegação">
           <CommandItem onSelect={() => go("/notifications")}>
             <Inbox className="size-3.5" />
-            <span>Notificaciones</span>
+            <span>Notificações</span>
           </CommandItem>
           <CommandItem onSelect={() => go("/configuracao/perfil")}>
             <Settings className="size-3.5" />
@@ -88,10 +88,10 @@ export function CommandPalette({ isPrivileged }: Props) {
         {isPrivileged && (
           <>
             <CommandSeparator />
-            <CommandGroup heading="Administración">
+            <CommandGroup heading="Administração">
               <CommandItem onSelect={() => go("/users")}>
                 <Users className="size-3.5" />
-                <span>Usuarios</span>
+                <span>Usuários</span>
               </CommandItem>
               <CommandItem onSelect={() => go("/grupos")}>
                 <UsersRound className="size-3.5" />
@@ -99,30 +99,30 @@ export function CommandPalette({ isPrivileged }: Props) {
               </CommandItem>
               <CommandItem onSelect={() => go("/accounts")}>
                 <Building2 className="size-3.5" />
-                <span>Cuentas BI</span>
+                <span>Contas BI</span>
               </CommandItem>
               <CommandItem onSelect={() => go("/login-log")}>
                 <History className="size-3.5" />
-                <span>Auditoría de logins</span>
+                <span>Auditoria de logins</span>
               </CommandItem>
             </CommandGroup>
           </>
         )}
 
         <CommandSeparator />
-        <CommandGroup heading="Acciones">
+        <CommandGroup heading="Ações">
           <CommandItem onSelect={() => setTheme(theme === "dark" ? "light" : "dark")}>
             {theme === "dark" ? <Sun className="size-3.5" /> : <Moon className="size-3.5" />}
-            <span>Cambiar a tema {theme === "dark" ? "claro" : "oscuro"}</span>
+            <span>Mudar para tema {theme === "dark" ? "claro" : "escuro"}</span>
             <CommandShortcut>T</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => go("/configuracao/perfil")}>
             <KeyRound className="size-3.5" />
-            <span>Cambiar contraseña</span>
+            <span>Alterar senha</span>
           </CommandItem>
           <CommandItem onSelect={logout}>
             <LogOut className="size-3.5" />
-            <span>Cerrar sesión</span>
+            <span>Sair</span>
           </CommandItem>
         </CommandGroup>
       </CommandList>

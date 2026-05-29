@@ -65,7 +65,7 @@ interface ViewBarSearchProps
 function ViewBarSearch({
   value,
   onValueChange,
-  placeholder = "Buscar…",
+  placeholder = "Pesquisar…",
   className,
   ...props
 }: ViewBarSearchProps) {
@@ -83,7 +83,7 @@ function ViewBarSearch({
       {value ? (
         <button
           type="button"
-          aria-label="Limpiar búsqueda"
+          aria-label="Limpar pesquisa"
           onClick={() => onValueChange("")}
           className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
         >

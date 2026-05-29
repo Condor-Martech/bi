@@ -28,20 +28,20 @@ export function UploadMapDialog() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!file) {
-      toast.error("Seleccioná un archivo.");
+      toast.error("Selecione um arquivo.");
       return;
     }
     upload.mutate(
       { file, name },
       {
         onSuccess: ({ linkMap }) => {
-          toast.success(`Mapa "${linkMap.name ?? name}" subido.`);
+          toast.success(`Mapa "${linkMap.name ?? name}" enviado.`);
           setOpen(false);
           setName("");
           setFile(null);
           if (fileInputRef.current) fileInputRef.current.value = "";
         },
-        onError: (err) => toast.error((err as Error).message ?? "Error al subir."),
+        onError: (err) => toast.error((err as Error).message ?? "Erro ao enviar."),
       },
     );
   }
@@ -51,32 +51,32 @@ export function UploadMapDialog() {
       <DialogTrigger asChild>
         <Button className="gap-1.5">
           <Upload className="size-3.5" />
-          Subir mapa
+          Enviar mapa
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Subir mapa</DialogTitle>
+          <DialogTitle>Enviar mapa</DialogTitle>
           <DialogDescription>
-            Archivo de imagen + nombre de exhibición. Los tipos permitidos los define el
+            Arquivo de imagem + nome de exibição. Os tipos permitidos são definidos pelo
             backend (MULTER_TYPES).
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="map-name">Nombre</Label>
+            <Label htmlFor="map-name">Nome</Label>
             <Input
               id="map-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Mapa de ventas por región"
+              placeholder="Mapa de vendas por região"
               required
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="map-file">Archivo</Label>
+            <Label htmlFor="map-file">Arquivo</Label>
             <Input
               id="map-file"
               ref={fileInputRef}
@@ -101,7 +101,7 @@ export function UploadMapDialog() {
               Cancelar
             </Button>
             <Button type="submit" disabled={upload.isPending || !file}>
-              {upload.isPending ? "Subiendo…" : "Subir"}
+              {upload.isPending ? "Enviando…" : "Enviar"}
             </Button>
           </DialogFooter>
         </form>

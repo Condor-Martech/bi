@@ -27,10 +27,10 @@ export default function GlobalError({ error, reset }: ErrorProps) {
           <AlertTriangle className="size-6" />
         </div>
         <div className="space-y-1">
-          <h1 className="text-lg font-semibold tracking-tight">Algo se rompió</h1>
+          <h1 className="text-lg font-semibold tracking-tight">Algo deu errado</h1>
           <p className="text-sm text-muted-foreground">
-            Ocurrió un error inesperado. Probá de nuevo. Si persiste, contactá a un
-            administrador.
+            Ocorreu um erro inesperado. Tente novamente. Se persistir, entre em contato
+            com um administrador.
           </p>
           {error.digest && (
             <p className="pt-2 font-mono text-[10px] text-muted-foreground">
@@ -40,7 +40,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
         </div>
         <Button onClick={reset} className="gap-1.5">
           <RefreshCw className="size-3.5" />
-          Reintentar
+          Tentar novamente
         </Button>
       </div>
     </div>

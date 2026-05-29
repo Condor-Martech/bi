@@ -53,14 +53,14 @@ export default function LoginLogPage() {
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <History className="size-4 text-primary" />
-          <h1 className="text-2xl font-semibold tracking-tight">Auditoría de logins</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Auditoria de logins</h1>
         </div>
         <Badge variant="secondary" className="font-mono">
           {logs.length} registros
         </Badge>
       </header>
       <p className="text-sm text-muted-foreground">
-        Historial completo de logins. Restringido a MANAGER.
+        Histórico completo de logins. Restrito a MANAGER.
       </p>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -70,7 +70,7 @@ export default function LoginLogPage() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por nombre o email…"
+              placeholder="Pesquisar por nome ou e-mail…"
               className="h-8 pl-8 text-xs"
             />
           </div>
@@ -79,10 +79,10 @@ export default function LoginLogPage() {
             onValueChange={(v) => setRoleFilter(v as RoleFilter)}
           >
             <SelectTrigger size="sm" className="h-8 w-full text-xs sm:w-40">
-              <SelectValue placeholder="Filtrar por rol" />
+              <SelectValue placeholder="Filtrar por função" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos los roles</SelectItem>
+              <SelectItem value="all">Todas as funções</SelectItem>
               {ROLES.map((r) => (
                 <SelectItem key={r} value={r}>
                   {roleLabel(r)}
@@ -101,13 +101,13 @@ export default function LoginLogPage() {
           variant="outline"
           size="sm"
         >
-          <ToggleGroupItem value="by-user" aria-label="Agrupar por usuario" className="text-xs">
+          <ToggleGroupItem value="by-user" aria-label="Agrupar por usuário" className="text-xs">
             <Users className="size-3.5" />
-            Por usuario
+            Por usuário
           </ToggleGroupItem>
-          <ToggleGroupItem value="by-date" aria-label="Ordenar por fecha" className="text-xs">
+          <ToggleGroupItem value="by-date" aria-label="Ordenar por data" className="text-xs">
             <CalendarClock className="size-3.5" />
-            Por fecha
+            Por data
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
@@ -125,8 +125,8 @@ export default function LoginLogPage() {
           onSelectUser={setSelectedUserKey}
           emptyState={
             logs.length === 0
-              ? "Sin registros de login."
-              : "Sin resultados para los filtros aplicados."
+              ? "Sem registros de login."
+              : "Sem resultados para os filtros aplicados."
           }
         />
       ) : (
@@ -135,8 +135,8 @@ export default function LoginLogPage() {
           loading={isPending}
           emptyState={
             logs.length === 0
-              ? "Sin registros de login."
-              : "Sin resultados para los filtros aplicados."
+              ? "Sem registros de login."
+              : "Sem resultados para os filtros aplicados."
           }
         />
       )}

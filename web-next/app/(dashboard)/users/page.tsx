@@ -45,11 +45,11 @@ function useDebounced<T>(value: T, delayMs: number): T {
   return debounced;
 }
 
-const DATE_TIME_FMT = new Intl.DateTimeFormat("es-AR", {
+const DATE_TIME_FMT = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
   timeStyle: "short",
 });
-const DATE_FMT = new Intl.DateTimeFormat("es-AR", { dateStyle: "long" });
+const DATE_FMT = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" });
 
 function formatLastLogin(value: UserListItem["lastLogin"]): {
   display: string;
@@ -66,7 +66,7 @@ function formatLastLogin(value: UserListItem["lastLogin"]): {
     date.getDate() === now.getDate();
 
   const display = sameDay
-    ? `Hoy ${date.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}`
+    ? `Hoje ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
     : DATE_TIME_FMT.format(date);
 
   return { display, absolute: DATE_FMT.format(date) };
@@ -122,10 +122,10 @@ export default function UsersPage() {
     if (!u._id) return;
     del.mutate(u._id, {
       onSuccess: () => {
-        toast.success("Usuario eliminado.");
+        toast.success("Usuário excluído.");
         setDeleteTarget(undefined);
       },
-      onError: (err) => toast.error((err as Error).message ?? "No se pudo eliminar."),
+      onError: (err) => toast.error((err as Error).message ?? "Não foi possível excluir."),
     });
   }
 
@@ -135,21 +135,21 @@ export default function UsersPage() {
     () => [
       {
         accessorKey: "name",
-        header: "Nombre",
+        header: "Nome",
         cell: ({ row }) => (
           <span className="font-medium">{row.original.name ?? "—"}</span>
         ),
       },
       {
         accessorKey: "email",
-        header: "Email",
+        header: "E-mail",
         cell: ({ row }) => (
           <span className="text-muted-foreground">{row.original.email ?? "—"}</span>
         ),
       },
       {
         accessorKey: "role",
-        header: "Rol",
+        header: "Função",
         cell: ({ row }) => (
           <Badge variant="outline">{roleLabel(row.original.role)}</Badge>
         ),
@@ -210,7 +210,7 @@ export default function UsersPage() {
                   onClick={() => setDeleteTarget(u)}
                 >
                   <Trash2 className="size-3.5" />
-                  Eliminar
+                  Excluir
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -225,14 +225,14 @@ export default function UsersPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Usuarios</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Usuários</h1>
           <p className="text-sm text-muted-foreground">
-            Gestión de usuarios con acceso a la plataforma. Restringido a MANAGER.
+            Gestão de usuários com acesso à plataforma. Restrito a MANAGER.
           </p>
         </div>
         <Button onClick={openCreate} className="gap-1.5">
           <Plus className="size-3.5" />
-          Crear usuario
+          Criar usuário
         </Button>
       </header>
 
@@ -242,7 +242,7 @@ export default function UsersPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nombre, email o ISLV…"
+            placeholder="Pesquisar por nome, e-mail ou ISLV…"
             className="h-8 pl-8 text-xs"
           />
         </div>
@@ -253,10 +253,10 @@ export default function UsersPage() {
             onValueChange={(v) => setRoleFilter(v as RoleFilter)}
           >
             <SelectTrigger size="sm" className="h-8 w-full text-xs sm:w-40">
-              <SelectValue placeholder="Filtrar por rol" />
+              <SelectValue placeholder="Filtrar por função" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos los roles</SelectItem>
+              <SelectItem value="all">Todas as funções</SelectItem>
               {ROLES.map((r) => (
                 <SelectItem key={r} value={r}>
                   {roleLabel(r)}
@@ -266,7 +266,7 @@ export default function UsersPage() {
           </Select>
 
           <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span>Login desde</span>
+            <span>Login de</span>
             <Input
               type="date"
               value={lastLoginFrom}
@@ -276,7 +276,7 @@ export default function UsersPage() {
             />
           </label>
           <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span>hasta</span>
+            <span>até</span>
             <Input
               type="date"
               value={lastLoginTo}
@@ -296,7 +296,7 @@ export default function UsersPage() {
               }}
             >
               <X className="size-3" />
-              Limpiar fechas
+              Limpar datas
             </Button>
           )}
         </div>
@@ -304,7 +304,7 @@ export default function UsersPage() {
 
       {error ? (
         <div className="border-border bg-card rounded-md border p-6 text-center text-sm text-destructive">
-          Error al cargar usuarios: {(error as Error).message}
+          Erro ao carregar usuários: {(error as Error).message}
         </div>
       ) : (
         <DataTable
@@ -315,8 +315,8 @@ export default function UsersPage() {
           pageSize={10}
           emptyState={
             debouncedSearch || roleFilter !== "all" || hasDateRange
-              ? "Sin resultados para los filtros aplicados."
-              : "No hay usuarios todavía."
+              ? "Sem resultados para os filtros aplicados."
+              : "Ainda não há usuários."
           }
         />
       )}
@@ -328,8 +328,8 @@ export default function UsersPage() {
         onOpenChange={(v) => {
           if (!v) setDeleteTarget(undefined);
         }}
-        title="¿Eliminar este usuario?"
-        description={`Se borra ${deleteTarget?.name ?? "el usuario"} permanentemente. No se puede deshacer.`}
+        title="Excluir este usuário?"
+        description={`${deleteTarget?.name ?? "O usuário"} será excluído permanentemente. Não é possível desfazer.`}
         onConfirm={() => deleteTarget && confirmDelete(deleteTarget)}
         isPending={del.isPending}
       />

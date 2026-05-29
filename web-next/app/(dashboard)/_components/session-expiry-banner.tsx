@@ -57,11 +57,11 @@ export function SessionExpiryBanner({ exp }: Props) {
       <Clock className="size-3.5 text-twenty-orange" />
       <span>
         {isExpired
-          ? "Tu sesión expiró. Ingresá de nuevo para continuar."
-          : `Tu sesión expira en ${minutes} ${minutes === 1 ? "minuto" : "minutos"}. Guardá tu trabajo y volvé a entrar.`}
+          ? "Sua sessão expirou. Faça login novamente para continuar."
+          : `Sua sessão expira em ${minutes} ${minutes === 1 ? "minuto" : "minutos"}. Salve seu trabalho e entre novamente.`}
       </span>
       <Button size="sm" onClick={relogin} className="h-7">
-        {isExpired ? "Ir a login" : "Salir y volver a entrar"}
+        {isExpired ? "Ir para login" : "Sair e entrar novamente"}
       </Button>
       {!isExpired && (
         <Button
@@ -69,7 +69,7 @@ export function SessionExpiryBanner({ exp }: Props) {
           variant="ghost"
           onClick={() => setDismissed(true)}
           className="size-7"
-          aria-label="Descartar aviso"
+          aria-label="Dispensar aviso"
         >
           <X className="size-3.5" />
         </Button>

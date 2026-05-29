@@ -24,7 +24,7 @@ export function LogoutButton({ collapsed = false }: LogoutButtonProps) {
         router.replace("/login");
         router.refresh();
       } catch {
-        toast.error("No se pudo cerrar sesión.");
+        toast.error("Não foi possível sair.");
       }
     });
   }
@@ -35,15 +35,15 @@ export function LogoutButton({ collapsed = false }: LogoutButtonProps) {
       size="sm"
       onClick={onClick}
       disabled={isPending}
-      title={collapsed ? "Salir" : undefined}
-      aria-label={collapsed ? "Salir" : undefined}
+      title={collapsed ? "Sair" : undefined}
+      aria-label={collapsed ? "Sair" : undefined}
       className={cn(
         "text-sidebar-foreground/80",
         collapsed ? "h-8 w-8 justify-center p-0" : "w-full justify-start gap-2",
       )}
     >
       <LogOut className="h-3.5 w-3.5 shrink-0" />
-      {!collapsed && <span>{isPending ? "Saliendo…" : "Salir"}</span>}
+      {!collapsed && <span>{isPending ? "Saindo…" : "Sair"}</span>}
     </Button>
   );
 }

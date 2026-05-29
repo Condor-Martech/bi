@@ -26,7 +26,7 @@ interface FavoriteWithReport {
 
 export default async function Home() {
   const session = await requireSession();
-  const username = session.payload.email?.split("@")[0] ?? "Usuario";
+  const username = session.payload.email?.split("@")[0] ?? "Usuário";
 
   let favorites: FavoriteWithReport[];
   try {
@@ -40,7 +40,7 @@ export default async function Home() {
     <div className="mx-auto max-w-6xl space-y-8 p-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Hola, {username}
+          Olá, {username}
         </h1>
         <p className="text-sm text-muted-foreground">
           Plataforma BI · {roleLabel(session.payload.role)}
@@ -64,7 +64,7 @@ export default async function Home() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
               <Star className="h-6 w-6" />
-              Aún no marcaste reportes como favoritos.
+              Você ainda não marcou relatórios como favoritos.
             </CardContent>
           </Card>
         ) : (

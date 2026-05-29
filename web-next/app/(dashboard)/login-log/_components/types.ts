@@ -52,7 +52,7 @@ export function toRow(log: LoginLog): LoginLogRow {
   return {
     id: log._id,
     userKey: ref ? `deleted:${ref}` : `orphan:${log._id}`,
-    name: "Usuario eliminado",
+    name: "Usuário excluído",
     email: ref || "—",
     role: "—",
     loginTimeRaw: log.loginTime,

@@ -46,10 +46,10 @@ export function GroupDetailClient({ id }: Props) {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-3.5" />
-          Volver
+          Voltar
         </Link>
         <p className="mt-4 text-sm text-destructive">
-          Error al cargar el grupo: {(error as Error | undefined)?.message ?? "no encontrado"}
+          Erro ao carregar o grupo: {(error as Error | undefined)?.message ?? "não encontrado"}
         </p>
       </div>
     );
@@ -62,10 +62,10 @@ export function GroupDetailClient({ id }: Props) {
   function onDelete() {
     del.mutate(id, {
       onSuccess: () => {
-        toast.success("Grupo eliminado.");
+        toast.success("Grupo excluído.");
         router.push("/grupos");
       },
-      onError: (err) => toast.error((err as Error).message ?? "Error al eliminar."),
+      onError: (err) => toast.error((err as Error).message ?? "Erro ao excluir."),
     });
   }
 
@@ -85,7 +85,7 @@ export function GroupDetailClient({ id }: Props) {
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">{group.name}</h1>
           <p className="text-sm text-muted-foreground">
-            Cuenta BI:{" "}
+            Conta BI:{" "}
             <span className="font-medium text-foreground">
               {account ? `${account.nameAccount} · ${account.email}` : group.accountID}
             </span>
@@ -93,11 +93,11 @@ export function GroupDetailClient({ id }: Props) {
           <div className="flex gap-2 pt-1">
             <Badge variant="secondary" className="gap-1">
               <Users className="size-3" />
-              {memberCount} {memberCount === 1 ? "miembro" : "miembros"}
+              {memberCount} {memberCount === 1 ? "membro" : "membros"}
             </Badge>
             <Badge variant="secondary" className="gap-1">
               <FileText className="size-3" />
-              {reportCount} {reportCount === 1 ? "reporte" : "reportes"}
+              {reportCount} {reportCount === 1 ? "relatório" : "relatórios"}
             </Badge>
           </div>
         </div>
@@ -108,7 +108,7 @@ export function GroupDetailClient({ id }: Props) {
           onClick={() => setDeleteOpen(true)}
         >
           <Trash2 className="size-3.5" />
-          Eliminar grupo
+          Excluir grupo
         </Button>
       </header>
 
@@ -116,14 +116,14 @@ export function GroupDetailClient({ id }: Props) {
         <TabsList>
           <TabsTrigger value="members" className="gap-1.5">
             <Users className="size-3.5" />
-            Miembros
+            Membros
             <Badge variant="outline" className="ml-1">
               {memberCount}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="reports" className="gap-1.5">
             <FileText className="size-3.5" />
-            Reportes
+            Relatórios
             <Badge variant="outline" className="ml-1">
               {reportCount}
             </Badge>
@@ -142,8 +142,8 @@ export function GroupDetailClient({ id }: Props) {
       <DeleteConfirm
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="¿Eliminar este grupo?"
-        description={`Se elimina ${group.name} y se desvinculan sus miembros.`}
+        title="Excluir este grupo?"
+        description={`${group.name} será excluído e seus membros desvinculados.`}
         onConfirm={onDelete}
         isPending={del.isPending}
       />

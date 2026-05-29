@@ -18,7 +18,7 @@ export default function MapsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Mapas</h1>
           <p className="text-sm text-muted-foreground">
-            Archivos de imagen alojados en el servidor. Disponibles via webUrl pública.
+            Arquivos de imagem hospedados no servidor. Disponíveis via webUrl pública.
           </p>
         </div>
         <UploadMapDialog />
@@ -27,7 +27,7 @@ export default function MapsPage() {
       {error && (
         <Card>
           <CardContent className="py-8 text-center text-sm text-destructive">
-            Error al cargar mapas: {(error as Error).message}
+            Erro ao carregar mapas: {(error as Error).message}
           </CardContent>
         </Card>
       )}
@@ -44,7 +44,7 @@ export default function MapsPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <MapPinned className="size-6" />
-            No hay mapas subidos todavía.
+            Nenhum mapa enviado ainda.
           </CardContent>
         </Card>
       )}
@@ -68,7 +68,7 @@ export default function MapsPage() {
                 )}
               </div>
               <CardContent className="p-3">
-                <p className="line-clamp-1 text-sm font-medium">{m.name ?? "Sin nombre"}</p>
+                <p className="line-clamp-1 text-sm font-medium">{m.name ?? "Sem nome"}</p>
                 {m.webUrl && (
                   <a
                     href={m.webUrl}

@@ -62,10 +62,10 @@ export default function AccountsPage() {
   function confirmDelete(a: Account) {
     del.mutate(a._id, {
       onSuccess: () => {
-        toast.success("Cuenta eliminada.");
+        toast.success("Conta excluída.");
         setDeleteTarget(undefined);
       },
-      onError: (err) => toast.error((err as Error).message ?? "No se pudo eliminar."),
+      onError: (err) => toast.error((err as Error).message ?? "Não foi possível excluir."),
     });
   }
 
@@ -78,7 +78,7 @@ export default function AccountsPage() {
   useSyncEvents(
     useCallback(
       (e) => {
-        const accountName = accountNameByIdRef.current[e.data.accountID] ?? "cuenta";
+        const accountName = accountNameByIdRef.current[e.data.accountID] ?? "conta";
         const id = toastIdForJob(e.data.jobId);
 
         if (e.type === "sync.started") {
@@ -87,7 +87,7 @@ export default function AccountsPage() {
           toast.loading(e.data.message ?? `Sincronizando ${accountName}…`, { id });
         } else if (e.type === "sync.completed") {
           toast.success(
-            `${accountName} sincronizada (${e.data.workspacesCount ?? 0} workspaces, ${e.data.reportsCount ?? 0} reports).`,
+            `${accountName} sincronizada (${e.data.workspacesCount ?? 0} workspaces, ${e.data.reportsCount ?? 0} relatórios).`,
             { id },
           );
           setActiveSyncs((prev) => {
@@ -97,7 +97,7 @@ export default function AccountsPage() {
           });
           qc.invalidateQueries({ queryKey: reportsKeys.all });
         } else if (e.type === "sync.failed") {
-          toast.error(`No se pudo sincronizar ${accountName}: ${e.data.error}`, { id });
+          toast.error(`Não foi possível sincronizar ${accountName}: ${e.data.error}`, { id });
           setActiveSyncs((prev) => {
             const next = { ...prev };
             delete next[e.data.jobId];
@@ -113,7 +113,7 @@ export default function AccountsPage() {
     syncAll.mutate(undefined, {
       onSuccess: ({ jobs }) => {
         if (jobs.length === 0) {
-          toast.message("No hay cuentas para sincronizar.");
+          toast.message("Não há contas para sincronizar.");
           return;
         }
         setActiveSyncs((prev) => {
@@ -122,14 +122,14 @@ export default function AccountsPage() {
           return next;
         });
         for (const j of jobs) {
-          const name = accountNameByIdRef.current[j.accountID] ?? "cuenta";
+          const name = accountNameByIdRef.current[j.accountID] ?? "conta";
           toast.loading(
-            j.dedup ? `Sync ya en curso para ${name}…` : `Sincronizando ${name}…`,
+            j.dedup ? `Sincronização já em andamento para ${name}…` : `Sincronizando ${name}…`,
             { id: toastIdForJob(j.jobId) },
           );
         }
       },
-      onError: (err) => toast.error((err as Error).message ?? "No se pudo encolar el sync."),
+      onError: (err) => toast.error((err as Error).message ?? "Não foi possível enfileirar a sincronização."),
     });
   }
 
@@ -140,12 +140,12 @@ export default function AccountsPage() {
         if (!j) return;
         setActiveSyncs((prev) => ({ ...prev, [j.jobId]: j.accountID }));
         toast.loading(
-          j.dedup ? `Sync ya en curso para ${a.nameAccount}…` : `Sincronizando ${a.nameAccount}…`,
+          j.dedup ? `Sincronização já em andamento para ${a.nameAccount}…` : `Sincronizando ${a.nameAccount}…`,
           { id: toastIdForJob(j.jobId) },
         );
       },
       onError: (err) =>
-        toast.error((err as Error).message ?? "No se pudo encolar el sync."),
+        toast.error((err as Error).message ?? "Não foi possível enfileirar a sincronização."),
     });
   }
 
@@ -158,9 +158,9 @@ export default function AccountsPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Cuentas Power BI</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Contas Power BI</h1>
           <p className="text-sm text-muted-foreground">
-            Credenciales Azure AD por tenant. MANAGER únicamente.
+            Credenciais Azure AD por tenant. Apenas MANAGER.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ export default function AccountsPage() {
           </Button>
           <Button onClick={openCreate} className="gap-1.5">
             <Plus className="size-3.5" />
-            Crear cuenta
+            Criar conta
           </Button>
         </div>
       </header>
@@ -186,10 +186,10 @@ export default function AccountsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Email Azure</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>E-mail Azure</TableHead>
               <TableHead>Tenant ID</TableHead>
-              <TableHead>Usuarios</TableHead>
+              <TableHead>Usuários</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -215,7 +215,7 @@ export default function AccountsPage() {
             {!isPending && !error && accounts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                  No hay cuentas BI cargadas todavía.
+                  Ainda não há contas BI carregadas.
                 </TableCell>
               </TableRow>
             )}
@@ -255,7 +255,7 @@ export default function AccountsPage() {
                         onClick={() => setDeleteTarget(a)}
                       >
                         <Trash2 className="size-3.5" />
-                        Eliminar
+                        Excluir
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -274,8 +274,8 @@ export default function AccountsPage() {
         onOpenChange={(v) => {
           if (!v) setDeleteTarget(undefined);
         }}
-        title="¿Eliminar esta cuenta BI?"
-        description={`Se elimina ${deleteTarget?.nameAccount ?? "la cuenta"}. Los reportes y grupos vinculados quedan huérfanos.`}
+        title="Excluir esta conta BI?"
+        description={`${deleteTarget?.nameAccount ?? "A conta"} será excluída. Os relatórios e grupos vinculados ficarão órfãos.`}
         onConfirm={() => deleteTarget && confirmDelete(deleteTarget)}
         isPending={del.isPending}
       />

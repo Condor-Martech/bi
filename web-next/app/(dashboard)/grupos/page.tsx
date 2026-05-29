@@ -62,10 +62,10 @@ export default function GruposPage() {
   function confirmDelete(g: UserGroup) {
     del.mutate(g._id, {
       onSuccess: () => {
-        toast.success("Grupo eliminado.");
+        toast.success("Grupo excluído.");
         setDeleteTarget(undefined);
       },
-      onError: (err) => toast.error((err as Error).message ?? "No se pudo eliminar."),
+      onError: (err) => toast.error((err as Error).message ?? "Não foi possível excluir."),
     });
   }
 
@@ -73,14 +73,14 @@ export default function GruposPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Grupos de usuarios</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Grupos de usuários</h1>
           <p className="text-sm text-muted-foreground">
-            Agrupan usuarios y asignan reportes Power BI en masa. Sólo MANAGER.
+            Agrupam usuários e atribuem relatórios Power BI em massa. Apenas MANAGER.
           </p>
         </div>
         <Button onClick={() => setCreateOpen(true)} className="gap-1.5">
           <Plus className="size-3.5" />
-          Crear grupo
+          Criar grupo
         </Button>
       </header>
 
@@ -89,7 +89,7 @@ export default function GruposPage() {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar por grupo o cuenta…"
+          placeholder="Pesquisar por grupo ou conta…"
           className="pl-8"
         />
       </div>
@@ -98,10 +98,10 @@ export default function GruposPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Cuenta BI</TableHead>
-              <TableHead className="w-28">Miembros</TableHead>
-              <TableHead className="w-28">Reportes</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Conta BI</TableHead>
+              <TableHead className="w-28">Membros</TableHead>
+              <TableHead className="w-28">Relatórios</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -132,12 +132,12 @@ export default function GruposPage() {
                       <Users />
                     </EmptyStateIcon>
                     <EmptyStateTitle>
-                      {query ? "Sin resultados" : "No hay grupos"}
+                      {query ? "Sem resultados" : "Nenhum grupo"}
                     </EmptyStateTitle>
                     <EmptyStateDescription>
                       {query
-                        ? "Probá con otro término de búsqueda."
-                        : "Creá tu primer grupo para asignar reportes a varios usuarios."}
+                        ? "Tente outro termo de pesquisa."
+                        : "Crie seu primeiro grupo para atribuir relatórios a vários usuários."}
                     </EmptyStateDescription>
                   </EmptyState>
                 </TableCell>
@@ -192,7 +192,7 @@ export default function GruposPage() {
                           e.stopPropagation();
                           setDeleteTarget(g);
                         }}
-                        aria-label={`Eliminar ${g.name}`}
+                        aria-label={`Excluir ${g.name}`}
                       >
                         <Trash2 className="size-3.5" />
                       </Button>
@@ -212,8 +212,8 @@ export default function GruposPage() {
         onOpenChange={(v) => {
           if (!v) setDeleteTarget(undefined);
         }}
-        title="¿Eliminar este grupo?"
-        description={`Se elimina ${deleteTarget?.name ?? "el grupo"} y se desvinculan sus miembros.`}
+        title="Excluir este grupo?"
+        description={`${deleteTarget?.name ?? "O grupo"} será excluído e seus membros desvinculados.`}
         onConfirm={() => deleteTarget && confirmDelete(deleteTarget)}
         isPending={del.isPending}
       />

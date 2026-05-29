@@ -75,7 +75,7 @@ export function PowerBIReport({ reportId, initialData }: PowerBIReportProps) {
 
       embedded.on("error", (event) => {
         console.error("[PowerBIReport] SDK error:", event.detail);
-        setEmbedError("El visor de Power BI devolvió un error.");
+        setEmbedError("O visualizador do Power BI retornou um erro.");
       });
     });
 
@@ -113,7 +113,7 @@ export function PowerBIReport({ reportId, initialData }: PowerBIReportProps) {
       <div
         className="h-full animate-pulse rounded-md border border-border bg-muted/40"
         aria-busy="true"
-        aria-label="Cargando reporte"
+        aria-label="Carregando relatório"
       />
     );
   }

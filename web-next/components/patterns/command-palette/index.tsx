@@ -94,7 +94,7 @@ export function useCommandPalette() {
   const ctx = React.useContext(CommandPaletteContext);
   if (!ctx) {
     throw new Error(
-      "useCommandPalette debe usarse dentro de <CommandPaletteProvider>",
+      "useCommandPalette deve ser usado dentro de <CommandPaletteProvider>",
     );
   }
   return ctx;
@@ -108,7 +108,7 @@ export function useRegisterCommand(item: CommandPaletteItem) {
   const ctx = React.useContext(CommandPaletteContext);
   if (!ctx) {
     throw new Error(
-      "useRegisterCommand debe usarse dentro de <CommandPaletteProvider>",
+      "useRegisterCommand deve ser usado dentro de <CommandPaletteProvider>",
     );
   }
   const handlerRef = React.useRef(item.onSelect);
@@ -157,11 +157,11 @@ function CommandPalette() {
       open={open}
       onOpenChange={setOpen}
       title="Paleta de comandos"
-      description="Buscá y ejecutá comandos. Atajo: ⌘K"
+      description="Pesquise e execute comandos. Atalho: ⌘K"
     >
-      <CommandInput placeholder="¿Qué querés hacer?" />
+      <CommandInput placeholder="O que você quer fazer?" />
       <CommandList>
-        <CommandEmpty>Sin resultados.</CommandEmpty>
+        <CommandEmpty>Sem resultados.</CommandEmpty>
         {grouped.map(([group, groupItems], index) => (
           <React.Fragment key={group}>
             {index > 0 ? <CommandSeparator /> : null}

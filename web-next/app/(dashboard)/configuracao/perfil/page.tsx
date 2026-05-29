@@ -25,11 +25,11 @@ export default function PerfilPage() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (newPassword.length < 8) {
-      toast.error("La nueva contraseña debe tener al menos 8 caracteres.");
+      toast.error("A nova senha deve ter pelo menos 8 caracteres.");
       return;
     }
     if (newPassword !== confirm) {
-      toast.error("Las contraseñas no coinciden.");
+      toast.error("As senhas não coincidem.");
       return;
     }
 
@@ -37,13 +37,13 @@ export default function PerfilPage() {
       { currentPassword, newPassword },
       {
         onSuccess: () => {
-          toast.success("Contraseña actualizada.");
+          toast.success("Senha atualizada.");
           setCurrentPassword("");
           setNewPassword("");
           setConfirm("");
         },
         onError: (err) =>
-          toast.error((err as Error).message ?? "No se pudo cambiar la contraseña."),
+          toast.error((err as Error).message ?? "Não foi possível alterar a senha."),
       },
     );
   }
@@ -52,21 +52,21 @@ export default function PerfilPage() {
     <div className="mx-auto max-w-md space-y-6 p-6">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Perfil</h1>
-        <p className="text-sm text-muted-foreground">Configuración personal de tu cuenta.</p>
+        <p className="text-sm text-muted-foreground">Configuração pessoal da sua conta.</p>
       </header>
 
       <Card>
         <CardHeader className="space-y-1">
           <CardTitle className="flex items-center gap-2 text-base">
             <KeyRound className="size-4" />
-            Cambiar contraseña
+            Alterar senha
           </CardTitle>
-          <CardDescription>Mínimo 8 caracteres.</CardDescription>
+          <CardDescription>Mínimo de 8 caracteres.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="currentPassword">Contraseña actual</Label>
+              <Label htmlFor="currentPassword">Senha atual</Label>
               <Input
                 id="currentPassword"
                 type="password"
@@ -77,7 +77,7 @@ export default function PerfilPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="newPassword">Nueva contraseña</Label>
+              <Label htmlFor="newPassword">Nova senha</Label>
               <Input
                 id="newPassword"
                 type="password"
@@ -89,7 +89,7 @@ export default function PerfilPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="confirm">Confirmar nueva contraseña</Label>
+              <Label htmlFor="confirm">Confirmar nova senha</Label>
               <Input
                 id="confirm"
                 type="password"
@@ -101,7 +101,7 @@ export default function PerfilPage() {
               />
             </div>
             <Button type="submit" disabled={change.isPending} className="w-full">
-              {change.isPending ? "Actualizando…" : "Cambiar contraseña"}
+              {change.isPending ? "Atualizando…" : "Alterar senha"}
             </Button>
           </form>
         </CardContent>

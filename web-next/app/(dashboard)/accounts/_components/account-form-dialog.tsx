@@ -73,20 +73,20 @@ export function AccountFormDialog({ open, onOpenChange, account }: Props) {
         { id: account._id, body },
         {
           onSuccess: () => {
-            toast.success("Cuenta actualizada.");
+            toast.success("Conta atualizada.");
             onOpenChange(false);
           },
-          onError: (err) => toast.error((err as Error).message ?? "Error al actualizar."),
+          onError: (err) => toast.error((err as Error).message ?? "Erro ao atualizar."),
         },
       );
       return;
     }
     create.mutate(form, {
       onSuccess: () => {
-        toast.success("Cuenta creada y vinculada a tu usuario.");
+        toast.success("Conta criada e vinculada ao seu usuário.");
         onOpenChange(false);
       },
-      onError: (err) => toast.error((err as Error).message ?? "Error al crear."),
+      onError: (err) => toast.error((err as Error).message ?? "Erro ao criar."),
     });
   }
 
@@ -94,17 +94,17 @@ export function AccountFormDialog({ open, onOpenChange, account }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar cuenta BI" : "Crear cuenta BI"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Editar conta BI" : "Criar conta BI"}</DialogTitle>
           <DialogDescription>
-            Credenciales Azure AD del tenant Power BI. La contraseña y el client secret se
-            guardan encriptados en el servidor.
+            Credenciais Azure AD do tenant Power BI. A senha e o client secret são
+            armazenados criptografados no servidor.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="nameAccount">Nombre interno</Label>
+              <Label htmlFor="nameAccount">Nome interno</Label>
               <Input
                 id="nameAccount"
                 value={form.nameAccount}
@@ -113,7 +113,7 @@ export function AccountFormDialog({ open, onOpenChange, account }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email Azure AD</Label>
+              <Label htmlFor="email">E-mail Azure AD</Label>
               <Input
                 id="email"
                 type="email"
@@ -125,7 +125,7 @@ export function AccountFormDialog({ open, onOpenChange, account }: Props) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="pass">
-              Contraseña Azure AD {isEdit && <span className="text-muted-foreground">(opcional al editar)</span>}
+              Senha Azure AD {isEdit && <span className="text-muted-foreground">(opcional ao editar)</span>}
             </Label>
             <Input
               id="pass"
@@ -158,7 +158,7 @@ export function AccountFormDialog({ open, onOpenChange, account }: Props) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="clientSecret">
-              Client Secret {isEdit && <span className="text-muted-foreground">(opcional al editar)</span>}
+              Client Secret {isEdit && <span className="text-muted-foreground">(opcional ao editar)</span>}
             </Label>
             <Input
               id="clientSecret"
@@ -180,7 +180,7 @@ export function AccountFormDialog({ open, onOpenChange, account }: Props) {
               Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Guardando…" : isEdit ? "Guardar" : "Crear"}
+              {isPending ? "Salvando…" : isEdit ? "Salvar" : "Criar"}
             </Button>
           </DialogFooter>
         </form>

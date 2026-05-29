@@ -51,20 +51,20 @@ export function GroupCreateSheet({ open, onOpenChange }: Props) {
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return toast.error("El nombre es obligatorio.");
-    if (!accountID) return toast.error("Elegí una cuenta BI.");
-    if (!firstUser) return toast.error("Elegí un usuario inicial.");
+    if (!name.trim()) return toast.error("O nome é obrigatório.");
+    if (!accountID) return toast.error("Selecione uma conta BI.");
+    if (!firstUser) return toast.error("Selecione um usuário inicial.");
 
     create.mutate(
       { name: name.trim(), accountID, users: firstUser, reports: [] },
       {
         onSuccess: (res) => {
-          toast.success("Grupo creado. Asigná miembros y reportes.");
+          toast.success("Grupo criado. Atribua membros e relatórios.");
           onOpenChange(false);
           const id = (res as { _id?: string })?._id;
           if (id) router.push(`/grupos/${id}`);
         },
-        onError: (err) => toast.error((err as Error).message ?? "Error al crear."),
+        onError: (err) => toast.error((err as Error).message ?? "Erro ao criar."),
       },
     );
   }
@@ -73,31 +73,31 @@ export function GroupCreateSheet({ open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="flex w-full flex-col gap-0 sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Crear grupo</SheetTitle>
+          <SheetTitle>Criar grupo</SheetTitle>
           <SheetDescription>
-            Sólo lo básico: nombre, cuenta BI y un primer miembro. Después abrís el grupo y
-            asignás todos los reportes y usuarios que quieras.
+            Apenas o básico: nome, conta BI e um primeiro membro. Depois você abre o grupo e
+            atribui todos os relatórios e usuários que quiser.
           </SheetDescription>
         </SheetHeader>
 
         <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4 px-4 py-4">
           <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name">Nome</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Marketing Brasil"
+              placeholder="Ex: Marketing Brasil"
               required
               autoFocus
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="account">Cuenta BI</Label>
+            <Label htmlFor="account">Conta BI</Label>
             <Select value={accountID} onValueChange={setAccountID}>
               <SelectTrigger id="account">
-                <SelectValue placeholder="Elegí una cuenta" />
+                <SelectValue placeholder="Selecione uma conta" />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (
@@ -108,15 +108,15 @@ export function GroupCreateSheet({ open, onOpenChange }: Props) {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              El tenant de Power BI del que se sirven los reportes.
+              O tenant do Power BI de onde vêm os relatórios.
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="first-user">Primer miembro</Label>
+            <Label htmlFor="first-user">Primeiro membro</Label>
             <Select value={firstUser} onValueChange={setFirstUser}>
               <SelectTrigger id="first-user">
-                <SelectValue placeholder="Elegí el primer miembro" />
+                <SelectValue placeholder="Selecione o primeiro membro" />
               </SelectTrigger>
               <SelectContent>
                 {users.map((u) => {
@@ -131,7 +131,7 @@ export function GroupCreateSheet({ open, onOpenChange }: Props) {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Requerido por el backend legacy. Vas a poder agregar más en la próxima pantalla.
+              Exigido pelo backend legacy. Você poderá adicionar mais na próxima tela.
             </p>
           </div>
         </form>
@@ -146,7 +146,7 @@ export function GroupCreateSheet({ open, onOpenChange }: Props) {
             Cancelar
           </Button>
           <Button type="submit" onClick={onSubmit} disabled={create.isPending}>
-            {create.isPending ? "Creando…" : "Crear y configurar"}
+            {create.isPending ? "Criando…" : "Criar e configurar"}
           </Button>
         </SheetFooter>
       </SheetContent>

@@ -26,9 +26,9 @@ export default function DashboardError({ error, reset }: ErrorProps) {
           <AlertTriangle className="size-5" />
         </div>
         <div className="space-y-1">
-          <p className="text-sm font-medium">No se pudo cargar la página</p>
+          <p className="text-sm font-medium">Não foi possível carregar a página</p>
           <p className="text-xs text-muted-foreground">
-            {error.message || "Error interno. Probá de nuevo."}
+            {error.message || "Erro interno. Tente novamente."}
           </p>
           {error.digest && (
             <p className="pt-1 font-mono text-[10px] text-muted-foreground">
@@ -38,7 +38,7 @@ export default function DashboardError({ error, reset }: ErrorProps) {
         </div>
         <Button size="sm" onClick={reset} className="gap-1.5">
           <RefreshCw className="size-3.5" />
-          Reintentar
+          Tentar novamente
         </Button>
       </div>
     </div>

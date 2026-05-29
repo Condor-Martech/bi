@@ -89,7 +89,7 @@ export function NotificationBell() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Notificaciones"
+          aria-label="Notificações"
           className="relative h-8 w-8 text-sidebar-foreground/80 hover:text-sidebar-foreground"
         >
           <span ref={bellScope} className="inline-flex">
@@ -107,7 +107,7 @@ export function NotificationBell() {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end" sideOffset={8}>
         <div className="flex items-center justify-between px-3 py-2">
-          <div className="text-sm font-medium">Notificaciones</div>
+          <div className="text-sm font-medium">Notificações</div>
           {unreadItems.length > 0 && (
             <button
               type="button"
@@ -118,7 +118,7 @@ export function NotificationBell() {
               {markAsRead.isPending ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                "Marcar como leídas"
+                "Marcar como lidas"
               )}
             </button>
           )}
@@ -127,16 +127,16 @@ export function NotificationBell() {
         <ScrollArea className="h-80">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center text-xs text-muted-foreground">
-              Cargando…
+              Carregando…
             </div>
           ) : isError ? (
             <div className="flex h-40 items-center justify-center text-xs text-muted-foreground">
-              No se pudieron cargar las notificaciones.
+              Não foi possível carregar as notificações.
             </div>
           ) : items.length === 0 ? (
             <div className="flex h-40 flex-col items-center justify-center gap-2 text-xs text-muted-foreground">
               <BellOff className="h-5 w-5" />
-              Sin notificaciones todavía.
+              Sem notificações ainda.
             </div>
           ) : (
             <MotionList
@@ -155,7 +155,7 @@ export function NotificationBell() {
                   <div className="flex items-start gap-2">
                     {!n.readme && (
                       <span
-                        aria-label="No leída"
+                        aria-label="Não lida"
                         className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
                       />
                     )}
@@ -181,7 +181,7 @@ export function NotificationBell() {
                         e.stopPropagation();
                         deleteOne.mutate(n._id);
                       }}
-                      aria-label="Eliminar notificación"
+                      aria-label="Excluir notificação"
                       className="ml-2 hidden h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground group-hover:flex"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -207,13 +207,13 @@ function formatRelative(input: string | Date): string {
     const diff = Date.now() - d.getTime();
     if (Number.isNaN(diff)) return "";
     const sec = Math.floor(diff / 1000);
-    if (sec < 60) return "ahora";
+    if (sec < 60) return "agora";
     const min = Math.floor(sec / 60);
-    if (min < 60) return `hace ${min} min`;
+    if (min < 60) return `há ${min} min`;
     const hr = Math.floor(min / 60);
-    if (hr < 24) return `hace ${hr} h`;
+    if (hr < 24) return `há ${hr} h`;
     const day = Math.floor(hr / 24);
-    if (day < 30) return `hace ${day} d`;
+    if (day < 30) return `há ${day} d`;
     return d.toLocaleDateString();
   } catch {
     return "";

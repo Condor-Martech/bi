@@ -102,14 +102,14 @@ export function MembersSection({ group }: Props) {
   }
   function save() {
     if (selected.size === 0) {
-      toast.error("El grupo necesita al menos un miembro.");
+      toast.error("O grupo precisa de pelo menos um membro.");
       return;
     }
     update.mutate(
       { id: group._id, body: { usersIds: [...selected] } },
       {
-        onSuccess: () => toast.success("Miembros actualizados."),
-        onError: (err) => toast.error((err as Error).message ?? "Error al guardar."),
+        onSuccess: () => toast.success("Membros atualizados."),
+        onError: (err) => toast.error((err as Error).message ?? "Erro ao salvar."),
       },
     );
   }
@@ -118,28 +118,28 @@ export function MembersSection({ group }: Props) {
     <div className="space-y-4 rounded-md border border-border bg-card p-4">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h2 className="text-sm font-semibold">Miembros del grupo</h2>
+          <h2 className="text-sm font-semibold">Membros do grupo</h2>
           <p className="text-xs text-muted-foreground">
-            Los miembros heredan los reportes asignados al grupo.
+            Os membros herdam os relatórios atribuídos ao grupo.
           </p>
         </div>
         <Popover open={popOpen} onOpenChange={setPopOpen}>
           <PopoverTrigger asChild>
             <Button size="sm" className="gap-1.5">
               <UserPlus className="size-3.5" />
-              Agregar miembros
+              Adicionar membros
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-[380px] p-0">
             <Command shouldFilter={false}>
               <CommandInput
-                placeholder="Buscar por nombre o email…"
+                placeholder="Pesquisar por nome ou e-mail…"
                 value={query}
                 onValueChange={setQuery}
               />
               <div className="flex items-center justify-between border-b border-border px-3 py-2 text-xs text-muted-foreground">
                 <span>
-                  {selected.size} de {users.length} seleccionados
+                  {selected.size} de {users.length} selecionados
                 </span>
                 {selected.size > 0 && (
                   <button
@@ -147,13 +147,13 @@ export function MembersSection({ group }: Props) {
                     onClick={() => setSelected(new Set())}
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Limpiar
+                    Limpar
                   </button>
                 )}
               </div>
               <CommandList className="max-h-72">
                 <CommandEmpty>
-                  {isPending ? "Cargando…" : "No hay usuarios."}
+                  {isPending ? "Carregando…" : "Sem usuários."}
                 </CommandEmpty>
                 <CommandGroup>
                   {searchable.map((u) => {
@@ -198,7 +198,7 @@ export function MembersSection({ group }: Props) {
                   className="w-full"
                   onClick={() => setPopOpen(false)}
                 >
-                  Listo
+                  Pronto
                 </Button>
               </div>
             </Command>
@@ -217,9 +217,9 @@ export function MembersSection({ group }: Props) {
           <EmptyStateIcon asChild>
             <UserPlus />
           </EmptyStateIcon>
-          <EmptyStateTitle>Sin miembros</EmptyStateTitle>
+          <EmptyStateTitle>Sem membros</EmptyStateTitle>
           <EmptyStateDescription>
-            Agregá usuarios para que vean los reportes del grupo.
+            Adicione usuários para que vejam os relatórios do grupo.
           </EmptyStateDescription>
         </EmptyState>
       ) : (
@@ -249,7 +249,7 @@ export function MembersSection({ group }: Props) {
                   size="icon"
                   className="size-8 text-muted-foreground hover:text-destructive"
                   onClick={() => remove(id)}
-                  aria-label={`Quitar ${u.name ?? u.email}`}
+                  aria-label={`Remover ${u.name ?? u.email}`}
                 >
                   <X className="size-4" />
                 </Button>
@@ -265,14 +265,14 @@ export function MembersSection({ group }: Props) {
                 <Avatar className="size-8">
                   <AvatarFallback className="text-xs">??</AvatarFallback>
                 </Avatar>
-                <div className="font-mono text-xs">{id} (usuario no encontrado)</div>
+                <div className="font-mono text-xs">{id} (usuário não encontrado)</div>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 className="size-8 hover:text-destructive"
                 onClick={() => remove(id)}
-                aria-label="Quitar"
+                aria-label="Remover"
               >
                 <X className="size-4" />
               </Button>
@@ -284,10 +284,10 @@ export function MembersSection({ group }: Props) {
       {dirty && (
         <div className="flex items-center justify-end gap-2 border-t border-border pt-3">
           <Button variant="ghost" size="sm" onClick={reset} disabled={update.isPending}>
-            Cancelar cambios
+            Cancelar alterações
           </Button>
           <Button size="sm" onClick={save} disabled={update.isPending} className="gap-1.5">
-            {update.isPending ? "Guardando…" : (<><Check className="size-3.5" /> Guardar miembros</>)}
+            {update.isPending ? "Salvando…" : (<><Check className="size-3.5" /> Salvar membros</>)}
           </Button>
         </div>
       )}

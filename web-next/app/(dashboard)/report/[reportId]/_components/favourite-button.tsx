@@ -24,10 +24,10 @@ export function FavouriteButton({ reportIdPB }: FavouriteButtonProps) {
       {
         onSuccess: (res) => {
           toast.success(
-            res.action === "added" ? "Agregado a favoritos." : "Quitado de favoritos.",
+            res.action === "added" ? "Adicionado aos favoritos." : "Removido dos favoritos.",
           );
         },
-        onError: () => toast.error("No se pudo actualizar el favorito."),
+        onError: () => toast.error("Não foi possível atualizar o favorito."),
       },
     );
   }

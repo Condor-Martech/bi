@@ -36,9 +36,9 @@ export default async function ReportsPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Reportes</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Relatórios</h1>
         <Badge variant="secondary" className="font-mono">
-          {reports.length} disponibles
+          {reports.length} disponíveis
         </Badge>
       </header>
 
@@ -46,7 +46,7 @@ export default async function ReportsPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <FileBarChart2 className="h-6 w-6" />
-            No hay reportes asignados a tu usuario.
+            Sem relatórios atribuídos ao seu usuário.
           </CardContent>
         </Card>
       ) : (
@@ -60,7 +60,7 @@ export default async function ReportsPage() {
                 <Card className="transition-colors hover:bg-accent">
                   <CardHeader className="pb-2">
                     <CardTitle className="line-clamp-2 text-sm font-medium">
-                      {r.name ?? "Reporte sin nombre"}
+                      {r.name ?? "Relatório sem nome"}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>

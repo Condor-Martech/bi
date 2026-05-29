@@ -18,17 +18,17 @@ export function ReportError({ message, onRetry }: ReportErrorProps) {
 
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">
-          {message ?? "No se pudo cargar el reporte."}
+          {message ?? "Não foi possível carregar o relatório."}
         </p>
         <p className="text-xs text-muted-foreground">
-          Probá de nuevo. Si persiste, contactá a un administrador.
+          Tente novamente. Se persistir, entre em contato com um administrador.
         </p>
       </div>
 
       {onRetry && (
         <Button variant="secondary" size="sm" onClick={onRetry}>
           <RefreshCw className="size-3.5" />
-          Reintentar
+          Tentar novamente
         </Button>
       )}
     </div>

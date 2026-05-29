@@ -54,10 +54,10 @@ export default function CustomReportsPage() {
   function confirmDelete(r: CustomReport) {
     del.mutate(r.reportIdPB, {
       onSuccess: () => {
-        toast.success("Reporte custom eliminado.");
+        toast.success("Relatório personalizado excluído.");
         setDeleteTarget(undefined);
       },
-      onError: (err) => toast.error((err as Error).message ?? "No se pudo eliminar."),
+      onError: (err) => toast.error((err as Error).message ?? "Não foi possível excluir."),
     });
   }
 
@@ -71,14 +71,14 @@ export default function CustomReportsPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Reportes custom</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Relatórios personalizados</h1>
           <p className="text-sm text-muted-foreground">
-            Reportes externos servidos por URL (no Power BI nativos).
+            Relatórios externos servidos por URL (não são Power BI nativos).
           </p>
         </div>
         <Button onClick={openCreate} disabled={!me} className="gap-1.5">
           <Plus className="size-3.5" />
-          Crear reporte
+          Criar relatório
         </Button>
       </header>
 
@@ -86,7 +86,7 @@ export default function CustomReportsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
+              <TableHead>Nome</TableHead>
               <TableHead>URL</TableHead>
               <TableHead>Autor</TableHead>
               <TableHead className="w-24">Abrir</TableHead>
@@ -115,7 +115,7 @@ export default function CustomReportsPage() {
             {!isPending && !error && reports.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                  No hay reportes custom todavía.
+                  Ainda não há relatórios personalizados.
                 </TableCell>
               </TableRow>
             )}
@@ -154,7 +154,7 @@ export default function CustomReportsPage() {
                         onClick={() => setDeleteTarget(r)}
                       >
                         <Trash2 className="size-3.5" />
-                        Eliminar
+                        Excluir
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -178,8 +178,8 @@ export default function CustomReportsPage() {
         onOpenChange={(v) => {
           if (!v) setDeleteTarget(undefined);
         }}
-        title="¿Eliminar este reporte custom?"
-        description={`"${deleteTarget?.name ?? ""}" se elimina permanentemente.`}
+        title="Excluir este relatório personalizado?"
+        description={`"${deleteTarget?.name ?? ""}" será excluído permanentemente.`}
         onConfirm={() => deleteTarget && confirmDelete(deleteTarget)}
         isPending={del.isPending}
       />

@@ -58,7 +58,7 @@ export function ByDateTable({ rows, loading, emptyState }: ByDateTableProps) {
           const r = row.original;
           const label =
             r.loginTimeMs > 0
-              ? new Date(r.loginTimeMs).toLocaleString("es-AR")
+              ? new Date(r.loginTimeMs).toLocaleString("pt-BR")
               : r.loginTimeRaw;
           return <span className="font-mono text-xs text-muted-foreground">{label}</span>;
         },

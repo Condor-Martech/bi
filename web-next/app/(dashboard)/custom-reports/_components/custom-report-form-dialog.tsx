@@ -52,10 +52,10 @@ export function CustomReportFormDialog({ open, onOpenChange, authorId, customRep
         { reportIdPB: customReport.reportIdPB, body: { name, url } },
         {
           onSuccess: () => {
-            toast.success("Reporte custom actualizado.");
+            toast.success("Relatório personalizado atualizado.");
             onOpenChange(false);
           },
-          onError: (err) => toast.error((err as Error).message ?? "Error al actualizar."),
+          onError: (err) => toast.error((err as Error).message ?? "Erro ao atualizar."),
         },
       );
       return;
@@ -65,10 +65,10 @@ export function CustomReportFormDialog({ open, onOpenChange, authorId, customRep
       { name, url, author: authorId },
       {
         onSuccess: () => {
-          toast.success("Reporte custom creado.");
+          toast.success("Relatório personalizado criado.");
           onOpenChange(false);
         },
-        onError: (err) => toast.error((err as Error).message ?? "Error al crear."),
+        onError: (err) => toast.error((err as Error).message ?? "Erro ao criar."),
       },
     );
   }
@@ -77,16 +77,16 @@ export function CustomReportFormDialog({ open, onOpenChange, authorId, customRep
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar reporte custom" : "Crear reporte custom"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Editar relatório personalizado" : "Criar relatório personalizado"}</DialogTitle>
           <DialogDescription>
-            Reportes externos servidos por URL (no son Power BI nativos — pueden ser otra
-            herramienta de BI o un dashboard público).
+            Relatórios externos servidos por URL (não são Power BI nativos — podem ser outra
+            ferramenta de BI ou um dashboard público).
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name">Nome</Label>
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="space-y-1.5">
@@ -100,7 +100,7 @@ export function CustomReportFormDialog({ open, onOpenChange, authorId, customRep
               required
             />
             <p className="text-xs text-muted-foreground">
-              Puede ser un embed de Power BI público, Looker Studio, Metabase, etc.
+              Pode ser um embed de Power BI público, Looker Studio, Metabase, etc.
             </p>
           </div>
 
@@ -114,7 +114,7 @@ export function CustomReportFormDialog({ open, onOpenChange, authorId, customRep
               Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Guardando…" : isEdit ? "Guardar" : "Crear"}
+              {isPending ? "Salvando…" : isEdit ? "Salvar" : "Criar"}
             </Button>
           </DialogFooter>
         </form>

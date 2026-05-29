@@ -83,7 +83,7 @@ export function DataTable<TData, TValue>({
       size: 32,
       header: ({ table }) => (
         <Checkbox
-          aria-label="Seleccionar todas las filas"
+          aria-label="Selecionar todas as linhas"
           checked={
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
@@ -93,7 +93,7 @@ export function DataTable<TData, TValue>({
       ),
       cell: ({ row }) => (
         <Checkbox
-          aria-label="Seleccionar fila"
+          aria-label="Selecionar linha"
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           onClick={(e) => e.stopPropagation()}
@@ -202,7 +202,7 @@ export function DataTable<TData, TValue>({
                   colSpan={finalColumns.length}
                   className="text-muted-foreground h-24 text-center text-xs"
                 >
-                  {emptyState ?? "Sin resultados."}
+                  {emptyState ?? "Sem resultados."}
                 </TableCell>
               </TableRow>
             ) : (
