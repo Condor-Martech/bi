@@ -12,7 +12,8 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
+import { put } from '@vercel/blob';
 import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
 
 
@@ -27,14 +28,7 @@ export class MapsController {
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './public/maps',
-        filename: (req, file, cb) => {
-          const fileNameSplit = file.originalname.split(".");
-          const fileExt = fileNameSplit[fileNameSplit.length - 1];
-          cb(null, `${Date.now()}.${fileExt}`)
-        }
-      }),
+      storage: memoryStorage(),
       fileFilter(req, file, callback) {
         const allowed = process.env.MULTER_TYPES;
         if (allowed.includes(file.mimetype)) {
@@ -48,7 +42,7 @@ export class MapsController {
   )
   @ApiOperation({
     summary: 'Fazer upload de mapa',
-    description: 'Recebe um arquivo de imagem de mapa via multipart/form-data, persiste em disco e retorna o registro criado com a URL pública de acesso. Os tipos de arquivo aceitos são definidos pela variável de ambiente MULTER_TYPES.',
+    description: 'Recebe um arquivo de imagem de mapa via multipart/form-data, faz upload para o Vercel Blob storage e retorna o registro criado com a URL pública de acesso. Os tipos de arquivo aceitos são definidos pela variável de ambiente MULTER_TYPES.',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -75,8 +69,14 @@ export class MapsController {
     if (!file && req.fileValidationError) {
       throw new BadRequestException(`Arquivo é invalido, arquivos permitidos são ${process.env.MULTER_TYPES}`)
     };
+    const fileNameSplit = file.originalname.split(".");
+    const fileExt = fileNameSplit[fileNameSplit.length - 1];
+    const blob = await put(`maps/${Date.now()}.${fileExt}`, file.buffer, {
+      access: 'public',
+      contentType: file.mimetype,
+    });
     const createDto: CreateMapDto = { ...input };
-    createDto.webUrl = `${process.env.BASE_URL}/maps/${file.filename}`;
+    createDto.webUrl = blob.url;
     const linkMap = await this.mapsService.create(createDto);
     res.status(201).send({ linkMap });
   };

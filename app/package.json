@@ -36,6 +36,7 @@
     "@nestjs/serve-static": "^4.0.0",
     "@nestjs/swagger": "^6.3.0",
     "@sentry/node": "^7.57.0",
+    "@vercel/blob": "^2.4.0",
     "axios": "^1.4.0",
     "bcryptjs": "^3.0.2",
     "bull": "^4.10.4",

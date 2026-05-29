@@ -94,6 +94,12 @@ Required vars referenced in code: `JWT_SECRET`, `ENCRYPTION_KEY`, `BCRYPT_COST`,
 `AZURE_CLIENT_SECRET`, `REDIS_HOST`, `REDIS_PORT`, `MAIL_SMTP`, `MAIL_PORT`, `APP_MAIL_USER`,
 `APP_MAIL_PASS`, `BASE_URL`, `USER_LIMIT`, `MULTER_TYPES`.
 
+**`BLOB_READ_WRITE_TOKEN`** is required by `MapsController.uploadFile` for `@vercel/blob` `put()`.
+Auto-injected by Vercel when a Blob store is linked to the project (Vercel dashboard → Storage →
+Blob → Connect Project). For non-Vercel deploys (Docker, local), set it manually from
+`https://vercel.com/dashboard/stores/blob/<id>/settings`. Without it, `POST /maps/upload` will throw
+at runtime (the boot succeeds — `put()` is called inside the handler, not at module load).
+
 ## Conventions & gotchas
 
 - **MongoDB connection is hardcoded** in `app.config.ts` (`MONGO_URL`), *not* env-driven — the
