@@ -4,9 +4,6 @@ on:
   push:
     branches: [main]
     tags: ['v*.*.*']
-    paths:
-      - 'app/**'
-      - '.github/workflows/publish-app.yml'
   workflow_dispatch:
 
 env:
