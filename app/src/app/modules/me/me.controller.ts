@@ -10,10 +10,10 @@ import {
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-import { ApiCommonResponses } from 'src/app/core/api/swagger/api.response';
-import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
-import { Roles } from 'src/app/core/auth/roles-auth.decorator';
-import { RolesGuard } from 'src/app/core/auth/roles.guard';
+import { ApiCommonResponses } from '../../core/api/swagger/api.response';
+import { JwtAuthGuard } from '../../core/auth/auth.guard';
+import { Roles } from '../../core/auth/roles-auth.decorator';
+import { RolesGuard } from '../../core/auth/roles.guard';
 import { SentryInterceptor } from '../../core/sentry/sentry.interceptor';
 import { ROLE_TYPES } from '../users/dto/create-user.dto';
 import { UserDocument } from '../users/user.entity';

@@ -13,7 +13,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
-import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
+import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
 
 
 @ApiTags('Maps')

@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Param, Delete, Inject, forwardRef, Req, UseInterceptors, UseGuards, NotFoundException, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
 import { SentryInterceptor } from '../../core/sentry/sentry.interceptor';
 import { ApiAcceptedResponse, ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Roles } from 'src/app/core/auth/roles-auth.decorator';
-import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
-import { RolesGuard } from 'src/app/core/auth/roles.guard';
+import { Roles } from '../../core/auth/roles-auth.decorator';
+import { JwtAuthGuard } from '../../core/auth/auth.guard';
+import { RolesGuard } from '../../core/auth/roles.guard';
 import { ROLE_TYPES } from '../users/dto/create-user.dto';
 import { GroupsService } from '../groups/groups.service';
 import { ReportsService } from './reports.service';
-import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
+import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
 import { ReportResponseDto } from './dto/create-report.dto';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ReportAccessGuard } from '../../core/permissions/report-access.guard';

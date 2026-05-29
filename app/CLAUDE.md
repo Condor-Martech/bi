@@ -100,8 +100,14 @@ Required vars referenced in code: `JWT_SECRET`, `ENCRYPTION_KEY`, `BCRYPT_COST`,
   `MONGO_DSN` env var exists but is unused. Changing the DB target means editing that constant.
 - `tsconfig.json` runs loose: `strictNullChecks: false`, `noImplicitAny: false`. Don't assume strict
   null safety.
-- Imports mix absolute (`src/app/...`, enabled by `baseUrl: "./"`) and relative paths — match the
-  surrounding file.
+- **Imports MUST be relative.** Do NOT use absolute paths like `from 'src/app/...'`, even though
+  `tsconfig.json` has `baseUrl: "./"` and `paths: { "src/*": ["src/*"] }`. The Vercel deploy uses
+  the legacy `@vercel/node` builder (`vercel.json` → `"use": "@vercel/node"`) which **IGNORES
+  `tsconfig.paths`** and serves the source tree compiled in-place from `/var/task/app/src/...`,
+  bypassing the `dist/` output that `tsc-alias` rewrites. Any module loaded at boot that contains
+  `from 'src/...'` will crash the Lambda with `Cannot find module 'src/...'`. The `paths` block
+  and `tsc-alias` in the build script are kept as a safety net for Docker / non-Vercel deploys —
+  they don't help on Vercel.
 - `mongoose-autopopulate` is registered globally via `connectionFactory`; entities can rely on
   `autopopulate: true` on refs.
 - Two bcrypt libraries are installed (`bcrypt` + `bcryptjs`); password hashing went through

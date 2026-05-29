@@ -8,12 +8,12 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
+import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
 import { UpdateCustomReportDto } from './dto/update-custom-report.dto';
 import { CustomReportsService } from './custom-reports.service';
-import { Roles } from 'src/app/core/auth/roles-auth.decorator';
-import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
-import { RolesGuard } from 'src/app/core/auth/roles.guard';
+import { Roles } from '../../core/auth/roles-auth.decorator';
+import { JwtAuthGuard } from '../../core/auth/auth.guard';
+import { RolesGuard } from '../../core/auth/roles.guard';
 import { ROLE_TYPES } from '../users/dto/create-user.dto';
 import { EventsService } from '../events/events.service';
 import { EventActor } from '../events/events.constants';

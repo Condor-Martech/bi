@@ -8,12 +8,12 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { SkipAuth } from 'src/app/core/auth/skip-auth.decorator';
+import { SkipAuth } from '../../core/auth/skip-auth.decorator';
 import { UpdateFilterDto } from './dto/update-filter.dto';
 import { CreateFilterDto } from './dto/create-filter.dto';
 import { UsersService } from '../users/users.service';
 import { FiltersService } from './filters.service';
-import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
+import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
 import { Request } from 'express';
 
 @ApiTags('Filters')

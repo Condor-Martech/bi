@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, forwardRef, Req, UseInterceptors, UseGuards, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, ROLE_TYPES, UserResponseDto, UserResponseWithPopulateDto } from './dto/create-user.dto';
-import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
+import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
 import { SentryInterceptor } from '../../core/sentry/sentry.interceptor';
-import { SkipAuth } from 'src/app/core/auth/skip-auth.decorator';
-import { Roles } from 'src/app/core/auth/roles-auth.decorator';
+import { SkipAuth } from '../../core/auth/skip-auth.decorator';
+import { Roles } from '../../core/auth/roles-auth.decorator';
 import { ReportsService } from '../reports/reports.service';
-import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
-import { RolesGuard } from 'src/app/core/auth/roles.guard';
+import { JwtAuthGuard } from '../../core/auth/auth.guard';
+import { RolesGuard } from '../../core/auth/roles.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

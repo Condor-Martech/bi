@@ -2,10 +2,10 @@ import { Controller, Get, Post, Param, Delete, Inject, forwardRef, Req, UseInter
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../core/sentry/sentry.interceptor';
 import { AccountsService } from '../accounts/accounts.service';
-import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
-import { Roles } from 'src/app/core/auth/roles-auth.decorator';
-import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
-import { RolesGuard } from 'src/app/core/auth/roles.guard';
+import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
+import { Roles } from '../../core/auth/roles-auth.decorator';
+import { JwtAuthGuard } from '../../core/auth/auth.guard';
+import { RolesGuard } from '../../core/auth/roles.guard';
 import { ROLE_TYPES } from '../users/dto/create-user.dto';
 import { GroupsService } from './groups.service';
 import { Request } from 'express';

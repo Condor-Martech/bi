@@ -11,15 +11,15 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Roles } from 'src/app/core/auth/roles-auth.decorator';
+import { Roles } from '../../core/auth/roles-auth.decorator';
 import { ROLE_TYPES } from '../users/dto/create-user.dto';
-import { RolesGuard } from 'src/app/core/auth/roles.guard';
-import { JwtAuthGuard } from 'src/app/core/auth/auth.guard';
-import { SkipAuth } from 'src/app/core/auth/skip-auth.decorator';
-import { SseAuthGuard } from 'src/app/core/auth/sse-auth.guard';
+import { RolesGuard } from '../../core/auth/roles.guard';
+import { JwtAuthGuard } from '../../core/auth/auth.guard';
+import { SkipAuth } from '../../core/auth/skip-auth.decorator';
+import { SseAuthGuard } from '../../core/auth/sse-auth.guard';
 import { Observable, interval, merge } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { ApiCommonResponses, ApiNotFound } from 'src/app/core/api/swagger/api.response';
+import { ApiCommonResponses, ApiNotFound } from '../../core/api/swagger/api.response';
 
 @ApiTags('Notifications')
 @Controller('notifications')
